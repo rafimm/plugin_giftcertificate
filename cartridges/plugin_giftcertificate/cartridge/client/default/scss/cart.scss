@@ -1,0 +1,17 @@
+@import "base/cart";
+
+.gift-certificate {
+    .gift-cert-delivery {
+        color: #990000;
+    }
+
+    .quantity-form {
+        .line-item-pricing-info{
+            margin-bottom: 0.5rem !important;
+        }
+
+        span{
+            padding-left: 20px;
+        }
+    }
+}
