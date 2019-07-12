@@ -1,0 +1,36 @@
+<isloop items="${pdict.giftCertificateItems}" var="giftCertificateItem">
+    <isset name="lineItem" value="${giftCertificateItem.lineItem}" scope="page" />
+
+    <div class="card product-info gift-certificate uuid-${lineItem.UUID}">
+        <!--- name and remove buttons --->
+        <isinclude template="cart/giftcert/giftCertCard/giftCertCardHeader" />
+
+        <div class="row">
+            <div class="col-lg-5">
+                <div class="row">
+                    <div class="col-lg-12 d-flex flex-row">
+
+                        <div class="item-image">
+                            <img class="product-image" alt="" src="${URLUtils.staticURL('/images/gift-card.jpg')}" />
+                        </div>
+
+                        <div class="item-attributes d-flex flex-column">
+                            <isinclude template="cart/giftcert/giftCertCard/giftCertAttributes" />
+                            <isinclude template="cart/giftcert/giftCertCard/giftCertCardEdit" />
+                        </div> 
+
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-12 d-lg-none"><hr class="line-item-divider" /></div>
+
+            <isinclude template="cart/giftcert/giftCertCard/giftCertCardProductPrice" />
+
+            <div class="hidden-md-down">
+                <isinclude template="cart/giftcert/giftCertCard/deleteButton" />
+            </div>
+
+        </div>
+    </div>
+</isloop>

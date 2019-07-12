@@ -84,7 +84,7 @@ server.post('AddToBasket', function (req, res, next) {
         
 
         Transaction.wrap(function() {
-            COHelpers.recalculateBasket(currentBasket);
+            basketCalculationHelpers.calculateTotals(currentBasket);
         });
 
         res.redirect('Cart-Show');

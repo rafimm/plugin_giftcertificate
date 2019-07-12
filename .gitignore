@@ -1,6 +1,7 @@
 node_modules
 node_modules
-cartridges/plugin_giftcertificate/cartridge/static/
+cartridges/plugin_giftcertificate/cartridge/static/default/css
+cartridges/plugin_giftcertificate/cartridge/static/default/js
 dw.json
 *-workspace
 package-lock.json
