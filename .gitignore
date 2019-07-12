@@ -3,3 +3,4 @@ node_modules
 cartridges/plugin_giftcertificate/cartridge/static/
 dw.json
 *-workspace
+package-lock.json
