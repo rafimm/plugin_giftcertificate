@@ -12,5 +12,8 @@
       "no-shadow": ["error", { "allow": ["err", "callback"]}],
       "max-len": "off",
       "no-mixed-spaces-and-tabs": 0
+  },
+  "globals": {
+      "$": true
   }
 }

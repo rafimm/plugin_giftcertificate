@@ -2,9 +2,12 @@
 
 var server = require('server');
 
+var Transaction = require('dw/system/Transaction');
+var URLUtils = require('dw/web/URLUtils');
+var BasketMgr = require('dw/order/BasketMgr');
+var giftCertHelper = require('*/cartridge/scripts/helpers/giftCertHelpers');
+
 server.get('Purchase', function (req, res, next) {
-    var URLUtils = require('dw/web/URLUtils');
-    
     var giftCertForm = server.forms.getForm('giftcert');
     giftCertForm.clear();
 
@@ -31,7 +34,6 @@ server.get('Purchase', function (req, res, next) {
 function createGiftCert(cart) {
     var giftCertificateLineItem;
     var purchaseForm = server.forms.getForm('giftcert').purchase;
-    var Transaction = require('dw/system/Transaction');
 
     Transaction.wrap(function() {
         giftCertificateLineItem = cart.createGiftCertificateLineItem(purchaseForm.amount.value, purchaseForm.recipientEmail.value);
@@ -48,16 +50,12 @@ function createGiftCert(cart) {
     return giftCertificateLineItem;
 }
 
-server.post('AddToBasket', function (req, res, next) {
+server.post('AddToBasket', server.middleware.https, function (req, res, next) {
     var Resource = require('dw/web/Resource');
-    var BasketMgr = require('dw/order/BasketMgr');
-    var Transaction = require('dw/system/Transaction');
     var giftCertForm = server.forms.getForm('giftcert');
 
     var formErrors = require('*/cartridge/scripts/formErrors');
-    var cartHelper = require('*/cartridge/scripts/cart/cartHelpers');
     var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
-    var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
 
     // Validates confirmation of email address.
     var recipientEmailForm = giftCertForm.purchase.recipientEmail;
@@ -96,6 +94,25 @@ server.post('AddToBasket', function (req, res, next) {
 
     return next();
 
+});
+
+server.get('RemoveGiftCertLineItem', server.middleware.https, function (req, res, next) {
+    var giftCertificateLineItemUUID = req.querystring.giftCertificateLineItemUUID;
+    var cart = BasketMgr.getCurrentOrNewBasket();
+    var giftCertificateLineItems = cart.getGiftCertificateLineItems();
+    if (giftCertificateLineItemUUID && giftCertificateLineItems.length > 0) {
+        Transaction.wrap(function () {
+            var giftCertificateLineItem = giftCertHelper.getGiftCertificateLineItemByUUID(giftCertificateLineItems, giftCertificateLineItemUUID);
+            cart.removeGiftCertificateLineItem(giftCertificateLineItem);
+        });
+    }
+
+    res.json({
+        success: true,
+        url: URLUtils.https('Cart-Show').toString()
+    });
+
+    next();
 });
 
 module.exports = server.exports();
