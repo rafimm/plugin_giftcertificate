@@ -1,4 +1,4 @@
-<button type="button" class="remove-btn-lg btn btn-light"
+<button type="button" class="remove-btn-lg btn btn-light remove-gift-certificate"
         data-target=".cart.cart-page"
         data-name="${lineItem.lineItemText}"
         data-action="${pdict.actionUrls.removeGiftCertificate}"

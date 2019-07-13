@@ -6,9 +6,17 @@ module.exports = [{
 	mode: 'production',
 	name: 'js',
 	entry: sgmfScripts.createJsPath(),
+	devtool: 'source-map',
 	output: {
 		path: path.resolve('./cartridges/plugin_giftcertificate/cartridge/static'),
 		filename: '[name].js'
+	},
+	resolve: {
+		alias: {
+			jquery: path.resolve(__dirname, '../storefront-reference-architecture/node_modules/jquery'),
+			bootstrap: path.resolve(__dirname, '../storefront-reference-architecture/node_modules/bootstrap'),
+			lodash: path.resolve(__dirname, '../storefront-reference-architecture/node_modules/lodash')
+		}
 	}
 }, {
 	mode: 'none',
