@@ -1,16 +1,19 @@
 <isdecorate template="common/layout/page">
+
+    <isinclude template="/components/modules" sf-toolkit="off" />
+
     <isscript>
         var assets = require('*/cartridge/scripts/assets.js');
         assets.addJs('/js/giftcert.js');
         assets.addCss('/css/giftcert.css');
     </isscript>
 
-    <h1 class="page-title">Gift Certificates</h1>
+    <h1 class="page-title"><isprint value="${Resource.msg('gift.cert.heading', 'giftcert', null)}" /> </h1>
 
-    <div class="container">
+    <div class="container gift-certificate-main">
         <div class="row justify-content-center equal-height">
             <div class="col-sm-12 col-md-6">
-                <iscomment> place to call the content</iscomment>
+                <iscontentasset aid="gift-details"/>
             </div>
             <div class="col-sm-12 col-md-6">
                 <isinclude template="checkout/giftcert/giftCertificateNoDecorator" sf-toolkit="off" />

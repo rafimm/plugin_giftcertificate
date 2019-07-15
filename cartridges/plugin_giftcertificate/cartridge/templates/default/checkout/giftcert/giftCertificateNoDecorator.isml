@@ -1,4 +1,10 @@
 <div class="product-gift-certificate">
+    <isif condition="${pdict.action == 'update'}">
+        <h2><isprint value="${Resource.msg('cart.edit.giftcert.heading','giftcert',null)}" /> </h2>
+    </isif>
+
+    <div class="error error-msg"></div>
+
     <form action="${pdict.actionUrl}" class="giftcert" method="POST" name="giftcert-purchase-form">
         <div class="form-group
             <isif condition="${!!pdict.giftCertForm.purchase.from.mandatory === true}">required</isif>">
@@ -66,7 +72,8 @@
             </label>
             <textarea class="form-control" id="giftcert_purchase_message" rows="3"
                 <isprint value="${pdict.giftCertForm.purchase.message.attributes}" encoding="off" />
-            ></textarea>
+            ><isprint value="${pdict.giftCertForm.purchase.message.value.trim()}" encoding="off" />
+            </textarea>
         </div>
 
         <div class="form-group
@@ -84,9 +91,14 @@
                 <div class="invalid-feedback" id="form-amount-error"></div>
         </div>
 
-        <button type="submit" class="btn btn-block btn-primary">
-            ${Resource.msg('gitfcert.purchase.submit','giftcert',null)}
-        </button>
-
+        <isif condition="${pdict.action == 'update'}">
+            <button type="submit" class="btn btn-block btn-primary update-gift-certificate">
+                ${Resource.msg('gitfcert.purchase.update','giftcert',null)}
+            </button>
+        <iselse/>
+            <button type="submit" class="btn btn-block btn-primary">
+                ${Resource.msg('gitfcert.purchase.submit','giftcert',null)}
+            </button>
+        </isif>
     </form>
 </div>

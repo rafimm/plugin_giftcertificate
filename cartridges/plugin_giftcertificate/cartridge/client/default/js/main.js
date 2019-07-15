@@ -12,6 +12,7 @@ $(document).ready(function () {
 	processInclude(require('base/components/clientSideValidation'));
 	processInclude(require('base/components/countrySelector'));
 	processInclude(require('base/components/toolTip'));
+	processInclude(require('./giftcert/giftcert'));
 });
 
 require('base/thirdParty/bootstrap');

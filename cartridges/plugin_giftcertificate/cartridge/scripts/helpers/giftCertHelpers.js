@@ -1,4 +1,5 @@
 'use strict';
+var Transaction = require('dw/system/Transaction');
 
 /**
  * Gets a gift certificate line item.
@@ -35,7 +36,133 @@ var getGiftLineItemObj = function (giftCertificateLineItem) {
 	return giftLineItemObj;
 };
 
+/**
+ * Generated HTML for edit gift certificate form
+ * @param {Object} giftCertForm Gift Certificate Form object
+ * @param {string} actionUrl ActionUrl for submitting the edit form
+ * @return {string} template text
+ */
+var editGCLIHtmlRenderedHtml = function (giftCertForm, actionUrl) {
+	var HashMap = require('dw/util/HashMap');
+	var Template = require('dw/util/Template');
+	var context = new HashMap();
+	context.put('giftCertForm', giftCertForm);
+	context.put('actionUrl', actionUrl);
+	context.put('action', 'update');
+	var template = new Template('checkout/giftcert/giftCertificateNoDecorator');
+	return template.render(context).text;
+};
+
+/**
+ * Creates a gift certificate in the customer basket using form input values.
+ * If a gift certificate is added to a product list, a ProductListItem is added, otherwise a GiftCertificateLineItem
+ * is added.
+ * __Note:__ the form must be validated before this function is called.
+ *
+ * @param {dw.order.Basket} currentBasket -  current Basket.
+ * @return {dw.order.GiftCertificateLineItem} gift certificate line item added to the
+ * current basket or product list.
+ */
+function createGiftCert(currentBasket) {
+	var giftCertificateLineItem;
+	// eslint-disable-next-line no-undef
+	var purchaseForm = session.forms.giftcert.purchase;
+
+	Transaction.wrap(function () {
+		giftCertificateLineItem = currentBasket.createGiftCertificateLineItem(purchaseForm.amount.value, purchaseForm.recipientEmail.value);
+		giftCertificateLineItem.setRecipientName(purchaseForm.recipient.value);
+		giftCertificateLineItem.setSenderName(purchaseForm.from.value);
+		giftCertificateLineItem.setMessage(purchaseForm.message.value);
+		return giftCertificateLineItem;
+	});
+
+	if (!giftCertificateLineItem) {
+		return null;
+	}
+
+	return giftCertificateLineItem;
+}
+
+/**
+ * Updates a gift certificate in the customer basket using form input values.
+ * Gets the input values from the purchase form and assigns them to the gift certificate line item.
+ * __Note:__ the form must be validated before calling this function.
+ *
+ * @transaction
+ * @param {dw.order.Basket} currentBasket -  current Basket.
+ * @return {dw.order.GiftCertificateLineItem} gift certificate line item added to the
+ * current basket or product list.
+ */
+function updateGiftCert(currentBasket) {
+	var Money = require('dw/value/Money');
+
+	// eslint-disable-next-line no-undef
+	var purchaseForm = session.forms.giftcert.purchase;
+	var giftCertificateLineItems = currentBasket.getGiftCertificateLineItems();
+	var giftCertificateLineItem = null;
+	var giftCertificateLineItemUUID = purchaseForm.lineItemId.value;
+
+	// eslint-disable-next-line no-undef
+	if (giftCertificateLineItems.length > 0 && !empty(giftCertificateLineItemUUID)) {
+		giftCertificateLineItem = getGiftCertificateLineItemByUUID(giftCertificateLineItems, giftCertificateLineItemUUID);
+	}
+
+	if (!giftCertificateLineItem) {
+		return null;
+	}
+
+	Transaction.wrap(function () {
+		giftCertificateLineItem.senderName = purchaseForm.from.value;
+		giftCertificateLineItem.recipientName = purchaseForm.recipient.value;
+		giftCertificateLineItem.recipientEmail = purchaseForm.recipientEmail.value;
+		giftCertificateLineItem.message = purchaseForm.message.value;
+
+		var amount = purchaseForm.amount.value;
+		giftCertificateLineItem.basePrice = new Money(amount, giftCertificateLineItem.basePrice.currencyCode);
+		giftCertificateLineItem.grossPrice = new Money(amount, giftCertificateLineItem.grossPrice.currencyCode);
+		giftCertificateLineItem.netPrice = new Money(amount, giftCertificateLineItem.netPrice.currencyCode);
+	});
+
+
+	return giftCertificateLineItem;
+}
+
+/**
+ * Internal helper function that creates/updates the gift certificate.
+ * Validates the giftcert.purchase form and handles any errors.
+ * @param {Object} form - gift certificate form object
+ * @return {Object} giftCertForm
+ */
+var processAddToBasket = function (form) {
+	var Resource = require('dw/web/Resource');
+	var giftCertForm = form;
+	// Validates confirmation of email address.
+	var recipientEmailForm = giftCertForm.purchase.recipientEmail;
+	var confirmRecipientEmailForm = giftCertForm.purchase.confirmRecipientEmail;
+
+	if ((recipientEmailForm.value.toLowerCase() !== confirmRecipientEmailForm.value.toLowerCase())) {
+		recipientEmailForm.valid = false;
+		confirmRecipientEmailForm.valid = false;
+		confirmRecipientEmailForm.error = Resource.msg('error.message.mismatch.email', 'forms', null);
+		giftCertForm.valid = false;
+	}
+
+	// Validates amount in range.
+	var amountForm = giftCertForm.purchase.amount;
+	if (amountForm.valid && ((amountForm.value < 5) || (amountForm.value > 5000))) {
+		amountForm.valid = false;
+		amountForm.error = Resource.msg('giftcert.amountparseerror', 'forms', null);
+		giftCertForm.valid = false;
+	}
+
+	return giftCertForm;
+};
+
 module.exports = {
 	getGiftCertificateLineItemByUUID: getGiftCertificateLineItemByUUID,
-	getGiftLineItemObj: getGiftLineItemObj
+	getGiftLineItemObj: getGiftLineItemObj,
+	editGCLIHtmlRenderedHtml: editGCLIHtmlRenderedHtml,
+	createGiftCert: createGiftCert,
+	updateGiftCert: updateGiftCert,
+	processAddToBasket: processAddToBasket
 };

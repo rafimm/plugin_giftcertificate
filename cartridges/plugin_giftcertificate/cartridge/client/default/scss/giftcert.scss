@@ -1,4 +1,29 @@
-.product-gift-certificate{
-    width: 100%;
-    padding: 1.2rem;
+.gift-certificate-main {
+    .content-asset {
+        background-color: #efefef;
+        margin-bottom: 1em;
+        padding: 1.83em;
+
+        img {
+            margin: 1.66em 0;
+        }
+
+        h2 {
+            font-size: 1.3em;
+            text-transform: uppercase;
+        }
+    }
+
+    .product-gift-certificate{
+        width: 100%;
+        padding: 1.2rem;
+
+        .form-group.required .form-control-label:before {
+            content: "*";
+            color: #c00;
+        }
+    }
+
+    
+
 }
