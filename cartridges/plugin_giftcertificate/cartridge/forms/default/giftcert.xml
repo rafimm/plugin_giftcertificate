@@ -61,6 +61,8 @@
 			parse-error="giftcert.amountparseerror"
 			missing-error="giftcert.amountmissingerror"
 			value-error="giftcert.amountvalueerror" />
+
+		<field formid="lineItemId" type="string" mandatory="false" binding="lineitemid"/>
 			
 	</group>
 </form>

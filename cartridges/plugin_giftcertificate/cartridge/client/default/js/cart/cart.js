@@ -262,13 +262,18 @@ function getModalHtmlElement() {
 /**
  * Parses the html for a modal window
  * @param {string} html - representing the body and footer of the modal window
- *
+ * @param {boolean} isGiftCertificate - flag to check if it is a gift certificate
  * @return {Object} - Object with properties body and footer.
  */
-function parseHtml(html) {
+function parseHtml(html, isGiftCertificate) {
 	var $html = $('<div>').append($.parseHTML(html));
 
-	var body = $html.find('.product-quickview');
+	var body;
+	if (isGiftCertificate) {
+		body = $html.find('.product-gift-certificate');
+	} else {
+		body = $html.find('.product-quickview');
+	}
 	var footer = $html.find('.modal-footer').children();
 
 	return { body: body, footer: footer };
@@ -277,15 +282,16 @@ function parseHtml(html) {
 /**
  * replaces the content in the modal window for product variation to be edited.
  * @param {string} editProductUrl - url to be used to retrieve a new product model
+ * @param {boolean} isGiftCertificate - flag to check if it is a gift certificate
  */
-function fillModalElement(editProductUrl) {
+function fillModalElement(editProductUrl, isGiftCertificate) {
 	$('.modal-body').spinner().start();
 	$.ajax({
 		url: editProductUrl,
 		method: 'GET',
 		dataType: 'json',
 		success: function (data) {
-			var parsedHtml = parseHtml(data.renderedTemplate);
+			var parsedHtml = parseHtml(data.renderedTemplate, isGiftCertificate);
 
 			$('#editProductModal .modal-body').empty();
 			$('#editProductModal .modal-body').html(parsedHtml.body);
@@ -629,6 +635,15 @@ module.exports = function () {
 		var editProductUrl = $(this).attr('href');
 		getModalHtmlElement();
 		fillModalElement(editProductUrl);
+	});
+
+	// handling edit gift certificate click
+	$('body').on('click', '.cart-page .gift-card-edit .edit', function (e) {
+		e.preventDefault();
+
+		var editProductUrl = $(this).attr('href');
+		getModalHtmlElement();
+		fillModalElement(editProductUrl, true);
 	});
 
 	$('body').on('shown.bs.modal', '#editProductModal', function () {

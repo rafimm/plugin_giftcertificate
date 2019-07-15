@@ -17,6 +17,25 @@ var getGiftCertificateLineItemByUUID = function (lineItems, uuid) {
 	return null;
 };
 
+/**
+ *
+ * @param {dw.order.GiftCertificate} giftCertificateLineItem gift certificate line item
+ * @return {Object} giftLineItemObj
+ */
+var getGiftLineItemObj = function (giftCertificateLineItem) {
+	var giftLineItemObj = {};
+	giftLineItemObj.from = giftCertificateLineItem.senderName;
+	giftLineItemObj.lineItemId = giftCertificateLineItem.UUID;
+	giftLineItemObj.recipient = giftCertificateLineItem.recipientName;
+	giftLineItemObj.recipientEmail = giftCertificateLineItem.recipientEmail;
+	giftLineItemObj.confirmRecipientEmail = giftCertificateLineItem.recipientEmail;
+	giftLineItemObj.message = giftCertificateLineItem.message;
+	giftLineItemObj.amount = giftCertificateLineItem.price.value;
+
+	return giftLineItemObj;
+};
+
 module.exports = {
-	getGiftCertificateLineItemByUUID: getGiftCertificateLineItemByUUID
+	getGiftCertificateLineItemByUUID: getGiftCertificateLineItemByUUID,
+	getGiftLineItemObj: getGiftLineItemObj
 };

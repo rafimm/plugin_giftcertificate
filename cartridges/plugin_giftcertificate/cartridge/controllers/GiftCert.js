@@ -27,7 +27,7 @@ server.get('Purchase', function (req, res, next) {
  * is added.
  * __Note:__ the form must be validated before this function is called.
  *
- * @param {module:models/CartModel~CartModel} cart - A CartModel wrapping the current Basket.
+ * @param {dw.order.Basket} cart -  current Basket.
  * @return {dw.order.GiftCertificateLineItem} gift certificate line item added to the
  * current basket or product list.
  */
@@ -96,6 +96,9 @@ server.post('AddToBasket', server.middleware.https, function (req, res, next) {
 
 });
 
+/**
+ * Removes the gift certificate from the basket
+ */
 server.get('RemoveGiftCertLineItem', server.middleware.https, function (req, res, next) {
     var CartModel = require('*/cartridge/models/cart');
     var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
@@ -130,6 +133,54 @@ server.get('RemoveGiftCertLineItem', server.middleware.https, function (req, res
     }
 
     return next();
+});
+
+server.get('Edit', server.middleware.https, function (req, res, next) {
+    var currentBasket = BasketMgr.getCurrentOrNewBasket();
+    var HashMap = require('dw/util/HashMap');
+    var Template = require('dw/util/Template');
+    // if (!currentBasket) {
+    //     purchase();
+    //     return;
+    // }
+    var giftCertificateLineItem = null;
+    var giftCertificateLineItemUUID = req.querystring.uuid;
+    var giftCertificateLineItems = currentBasket.getGiftCertificateLineItems();
+    if (giftCertificateLineItems.length > 0 && !empty(giftCertificateLineItemUUID)) {
+        giftCertificateLineItem = giftCertHelper.getGiftCertificateLineItemByUUID(giftCertificateLineItems, giftCertificateLineItemUUID);
+    }
+    
+    // if (!giftCertificateLineItem) {
+    //     purchase();
+    //     return;
+    // }
+
+    var actionUrl = URLUtils.https('GiftCert-Update');
+
+    var giftCertForm = server.forms.getForm('giftcert');
+    giftCertForm.clear();
+
+    var giftLineItemObj = giftCertHelper.getGiftLineItemObj(giftCertificateLineItem);
+
+    giftCertForm.copyFrom(giftLineItemObj);
+
+    res.render('checkout/giftcert/giftcertpurchase', {
+        giftCertForm: giftCertForm,
+        actionUrl: actionUrl
+    });
+    var context = new HashMap();
+    context.put('giftCertForm', giftCertForm);
+    context.put('actionUrl', actionUrl);
+
+    var template = new Template('checkout/giftcert/giftCertificateNoDecorator');
+
+    res.json({
+        renderedTemplate: template.render(context).text
+    });
+
+    return next();
+
+    
 });
 
 module.exports = server.exports();
