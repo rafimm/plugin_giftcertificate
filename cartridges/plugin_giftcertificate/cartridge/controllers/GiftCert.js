@@ -8,6 +8,9 @@ var BasketMgr = require('dw/order/BasketMgr');
 var Resource = require('dw/web/Resource');
 var giftCertHelper = require('*/cartridge/scripts/helpers/giftCertHelpers');
 
+/**
+ * Renders form for adding gift certificate
+ */
 server.get('Purchase', function (req, res, next) {
     var giftCertForm = server.forms.getForm('giftcert');
     giftCertForm.clear();
@@ -74,12 +77,26 @@ server.post('Update', server.middleware.https, function (req, res, next) {
     if (giftCertForm.valid) {
         var currentBasket = BasketMgr.getCurrentOrNewBasket();
         var giftCertificateLineItem = giftCertHelper.updateGiftCert(currentBasket);
+
+        if (empty(giftCertificateLineItem)) {
+            res.setStatusCode(500);
+            res.json({
+                success: false,
+                errorMessage: Resource.msg('giftcert.server.update.error', 'forms', null)
+            });
+
+            return next();
+        }
         
         Transaction.wrap(function() {
             basketCalculationHelpers.calculateTotals(currentBasket);
         });
 
-        res.redirect('Cart-Show');
+        res.json({
+            success: true,
+            redirectUrl: URLUtils.https('Cart-Show').toString()
+        });
+        
     } else {
         res.json({
             fields: formErrors.getFormErrors(giftCertForm)

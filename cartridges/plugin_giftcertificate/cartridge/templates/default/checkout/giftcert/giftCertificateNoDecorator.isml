@@ -3,7 +3,7 @@
         <h2><isprint value="${Resource.msg('cart.edit.giftcert.heading','giftcert',null)}" /> </h2>
     </isif>
 
-    <div class="error error-msg"></div>
+    <div class="error error-gift-certificate"></div>
 
     <form action="${pdict.actionUrl}" class="giftcert" method="POST" name="giftcert-purchase-form">
         <div class="form-group

@@ -1,8 +1,18 @@
+@import "~base/variables";
+@import "bootstrap/scss/variables";
+@import "bootstrap/scss/mixins/breakpoints";
+
 .gift-certificate-main {
+
+    margin-bottom: 1em;
+
     .content-asset {
         background-color: #efefef;
-        margin-bottom: 1em;
-        padding: 1.83em;
+        padding: 10px;
+
+        @include media-breakpoint-down(md) {
+            margin-bottom: 1em;
+        }
 
         img {
             margin: 1.66em 0;
@@ -16,14 +26,10 @@
 
     .product-gift-certificate{
         width: 100%;
-        padding: 1.2rem;
 
         .form-group.required .form-control-label:before {
             content: "*";
             color: #c00;
         }
     }
-
-    
-
 }

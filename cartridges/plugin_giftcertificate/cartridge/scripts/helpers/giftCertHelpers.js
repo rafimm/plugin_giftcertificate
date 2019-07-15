@@ -19,7 +19,7 @@ var getGiftCertificateLineItemByUUID = function (lineItems, uuid) {
 };
 
 /**
- *
+ * Builds Object from giftCertificateLineItem to update the form values
  * @param {dw.order.GiftCertificate} giftCertificateLineItem gift certificate line item
  * @return {Object} giftLineItemObj
  */
