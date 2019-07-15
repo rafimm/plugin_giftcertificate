@@ -97,22 +97,39 @@ server.post('AddToBasket', server.middleware.https, function (req, res, next) {
 });
 
 server.get('RemoveGiftCertLineItem', server.middleware.https, function (req, res, next) {
-    var giftCertificateLineItemUUID = req.querystring.giftCertificateLineItemUUID;
-    var cart = BasketMgr.getCurrentOrNewBasket();
-    var giftCertificateLineItems = cart.getGiftCertificateLineItems();
-    if (giftCertificateLineItemUUID && giftCertificateLineItems.length > 0) {
+    var CartModel = require('*/cartridge/models/cart');
+    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+
+    var giftCertificateLineItemUUID = req.querystring.uuid;
+    var giftCertificateLineItem = null;
+    var currentBasket = BasketMgr.getCurrentOrNewBasket();
+    var giftCertificateLineItems = currentBasket.getGiftCertificateLineItems();
+    if (giftCertificateLineItems.length > 0 && !empty(giftCertificateLineItemUUID)) {
+        giftCertificateLineItem = giftCertHelper.getGiftCertificateLineItemByUUID(giftCertificateLineItems, giftCertificateLineItemUUID);
+    }
+    
+    var giftItemDeleted = false;
+    if (!empty(giftCertificateLineItem)) {
         Transaction.wrap(function () {
-            var giftCertificateLineItem = giftCertHelper.getGiftCertificateLineItemByUUID(giftCertificateLineItems, giftCertificateLineItemUUID);
-            cart.removeGiftCertificateLineItem(giftCertificateLineItem);
+            currentBasket.removeGiftCertificateLineItem(giftCertificateLineItem);
+            basketCalculationHelpers.calculateTotals(currentBasket);
+            giftItemDeleted = true;
         });
     }
 
-    res.json({
-        success: true,
-        url: URLUtils.https('Cart-Show').toString()
-    });
+    if (giftItemDeleted) {
+        var basketModel = new CartModel(currentBasket);
+        var basketModelPlus = {
+            basket: basketModel,
+            giftLineItemAvailable: giftCertificateLineItems > 1 ? true : false
+        };
+        res.json(basketModelPlus);
+    } else {
+        res.setStatusCode(500);
+        res.json({ errorMessage: Resource.msg('error.cannot.remove.product', 'cart', null) });
+    }
 
-    next();
+    return next();
 });
 
 module.exports = server.exports();

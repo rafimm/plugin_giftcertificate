@@ -1,5 +1,5 @@
-<button type="button" class="remove-btn-lg btn btn-light remove-gift-certificate"
-        data-target=".cart.cart-page"
+<button type="button" class="remove-btn-lg remove-product btn btn-light" data-toggle="modal"
+        data-target=".cart.cart-page #removeProductModal"
         data-name="${lineItem.lineItemText}"
         data-action="${pdict.actionUrls.removeGiftCertificate}"
         data-uuid="${lineItem.UUID}"
