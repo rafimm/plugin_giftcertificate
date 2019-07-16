@@ -3,7 +3,7 @@
 
     <div class="card product-info gift-certificate uuid-${lineItem.UUID}">
         <!--- name and remove buttons --->
-        <isinclude template="cart/giftcert/giftCertCard/giftCertCardHeader" />
+        <isinclude template="common/giftCertCard/giftCertCardHeader" />
 
         <div class="row">
             <div class="col-lg-5">
@@ -15,8 +15,8 @@
                         </div>
 
                         <div class="item-attributes d-flex flex-column">
-                            <isinclude template="cart/giftcert/giftCertCard/giftCertAttributes" />
-                            <isinclude template="cart/giftcert/giftCertCard/giftCertCardEdit" />
+                            <isinclude template="common/giftCertCard/giftCertAttributes" />
+                            <isinclude template="common/giftCertCard/giftCertCardEdit" />
                         </div> 
 
                     </div>
@@ -25,10 +25,10 @@
 
             <div class="col-12 d-lg-none"><hr class="line-item-divider" /></div>
 
-            <isinclude template="cart/giftcert/giftCertCard/giftCertCardProductPrice" />
+            <isinclude template="common/giftCertCard/giftCertCardProductPrice" />
 
             <div class="hidden-md-down">
-                <isinclude template="cart/giftcert/giftCertCard/deleteButton" />
+                <isinclude template="common/giftCertCard/deleteButton" />
             </div>
 
         </div>

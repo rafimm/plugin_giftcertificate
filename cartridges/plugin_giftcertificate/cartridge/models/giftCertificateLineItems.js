@@ -9,10 +9,17 @@ var collections = require('*/cartridge/scripts/util/collections');
  * @param {string} view - the view of the line item (basket or order)
  * @returns {Array} an array of product line items.
  */
-function createProductLineItemsObject(allLineItems, view) {
+function createGcliObject(allLineItems, view) {
 	var lineItems = [];
 
+	var totalQuantity = 0;
+	var subTotal = 0;
+
 	collections.forEach(allLineItems, function (item) {
+
+		totalQuantity += 1;
+		subTotal += item.basePrice;
+
 		var params = {
 			pview: 'giftCertificateLineItem',
 			containerView: view,
@@ -22,7 +29,7 @@ function createProductLineItemsObject(allLineItems, view) {
 		lineItems.push(params);
 	});
 
-	return lineItems;
+	return { lineItems: lineItems, totalQuantity: totalQuantity, subTotal: subTotal };
 }
 
 
@@ -38,9 +45,14 @@ function createProductLineItemsObject(allLineItems, view) {
 function GiftCertificateLineItems(giftCertificateLineItems, view) {
 	// eslint-disable-next-line no-undef
 	if (!empty(giftCertificateLineItems)) {
-		this.items = createProductLineItemsObject(giftCertificateLineItems, view);
+		var gcliObject = createGcliObject(giftCertificateLineItems, view);
+		this.items = gcliObject.lineItems;
+		this.subTotal = gcliObject.subTotal;
+		this.totalQuantity = gcliObject.totalQuantity;
 	} else {
 		this.items = [];
+		this.totalQuantity = 0;
+		this.subTotal = 0;
 	}
 }
 

@@ -158,11 +158,51 @@ var processAddToBasket = function (form) {
 	return giftCertForm;
 };
 
+/**
+ * Create a gift certificate for a gift certificate line item in the order
+ * @param {dw.order.GiftCertificateLineItem} giftCertificateLineItem - gift certificate line item in basket
+ * @param {string} orderNo the order number of the order to associate gift certificate to
+ * @return {dw.order.GiftCertificate} - gift certificate
+ */
+function createGiftCertificateFromLineItem(giftCertificateLineItem, orderNo) {
+	var GiftCertificateMgr = require('dw/order/GiftCertificateMgr');
+	var giftCertificate = GiftCertificateMgr.createGiftCertificate(giftCertificateLineItem.netPrice.value);
+	giftCertificate.setRecipientEmail(giftCertificateLineItem.recipientEmail);
+	giftCertificate.setRecipientName(giftCertificateLineItem.recipientName);
+	giftCertificate.setSenderName(giftCertificateLineItem.senderName);
+	giftCertificate.setMessage(giftCertificateLineItem.message);
+	giftCertificate.setOrderNo(orderNo);
+
+	return giftCertificate;
+}
+
+/**
+ * Send an email to recipient of gift certificate
+ * @param {dw.order.GiftCertificate} GiftCertificate - gift certificate object
+ */
+function sendGiftCertificateEmail(GiftCertificate) {
+	var Resource = require('dw/web/Resource');
+	var Site = require('dw/system/Site');
+
+	var emailHelpers = require('*/cartridge/scripts/helpers/emailHelpers');
+
+	var emailObj = {
+		to: GiftCertificate.getRecipientEmail(),
+		subject: Resource.msg('resource.ordergcemsg', 'email', null) + ' ' + GiftCertificate.getSenderName(),
+		from: Site.current.getCustomPreferenceValue('customerServiceEmail') || 'no-reply@salesforce.com',
+		type: emailHelpers.emailTypes.orderConfirmation
+	};
+
+	emailHelpers.sendEmail(emailObj, 'mail/giftcert', GiftCertificate);
+}
+
 module.exports = {
 	getGiftCertificateLineItemByUUID: getGiftCertificateLineItemByUUID,
 	getGiftLineItemObj: getGiftLineItemObj,
 	editGCLIHtmlRenderedHtml: editGCLIHtmlRenderedHtml,
 	createGiftCert: createGiftCert,
 	updateGiftCert: updateGiftCert,
-	processAddToBasket: processAddToBasket
+	processAddToBasket: processAddToBasket,
+	createGiftCertificateFromLineItem: createGiftCertificateFromLineItem,
+	sendGiftCertificateEmail: sendGiftCertificateEmail
 };

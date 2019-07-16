@@ -6,6 +6,8 @@ var Transaction = require('dw/system/Transaction');
 var URLUtils = require('dw/web/URLUtils');
 var BasketMgr = require('dw/order/BasketMgr');
 var Resource = require('dw/web/Resource');
+
+
 var giftCertHelper = require('*/cartridge/scripts/helpers/giftCertHelpers');
 
 /**
