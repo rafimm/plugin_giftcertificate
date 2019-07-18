@@ -1,0 +1,39 @@
+<isset name="giftCertFields" value="${pdict.forms.billingForm.giftCertFields}" scope="page"/>
+
+<div class="tab-pane gift-cert-tab" id="gift-cert-tab" role="tabpanel">
+    <fieldset class="payment-form-fields">
+        <fieldset class="gift-cert-form">
+            <div class="row">
+                <div class="col-md-6 col-sm-12 gift-cert-fields">
+                    <div class="form-group
+                        <isif condition=${giftCertFields.giftCertCode.mandatory === true}>required</isif>
+                        ${giftCertFields.giftCertCode.htmlName}">
+                        <label class="form-control-label" for="giftCert">${Resource.msg('billing.giftcertlabel','giftcert',null)}</label>
+                        <div class="gift-cert-wrapper" data-missing-error="${Resource.msg('giftcert.missing.error','giftcert',null)}">
+                            <input type="text" class="form-control giftCertCode" id="giftCert"
+                                value="QLLPWOCJJATZQRLS"
+                                <isprint value=${giftCertFields.giftCertCode.attributes} encoding="off"/>
+                                aria-describedby="giftCertInvalidMessage"
+                            >
+                            <div class="invalid-feedback" id="giftCertInvalidMessage"></div>
+                        </div>
+                    </div>
+
+                    <div class="balance error"></div>
+                </div>
+
+                <div class="col-md-6 col-sm-12 gift-cert-buttons">
+                        <button class="btn btn-primary submit-giftCert" type="button" name="submitGift" value="submit-gifrcert" data-url="${URLUtils.https('GiftCert-AddGiftCertificate')}">
+                            <isprint value="${Resource.msg('giftcert.button.add','giftcert',null)}" />
+                        </button>
+
+                        <button class="btn btn-primary check-balance" type="button" name="checkBalance" value="gift-cert-balance" data-url="${URLUtils.https('GiftCert-CheckBalance')}">
+                            <isprint value="${Resource.msg('giftcert.button.checkbalance','giftcert',null)}" />
+                        </button>
+                </div>
+            </div>
+        </fieldset>
+        
+        <div class="gift-cert-error"></div>
+    </fieldset>
+</div>

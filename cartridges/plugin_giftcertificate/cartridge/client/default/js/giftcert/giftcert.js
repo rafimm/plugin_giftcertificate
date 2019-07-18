@@ -41,6 +41,20 @@ var updateGiftCertForm = function (form, isUpdate) {
 	return false;
 };
 
+/**
+ * Checks if user has entered gift certificate or not.
+ * @return {boolean} true/false
+ */
+var validateGiftCert = function () {
+	if ($('.giftCertCode').length === 0 || $('.giftCertCode').val().length === 0) {
+		var errorMessage = $('.gift-cert-wrapper').data('missing-error');
+		$('.balance').html(errorMessage).removeClass('success').addClass('error');
+		return true;
+	}
+
+	return false;
+};
+
 module.exports = {
 	addToBasket: function () {
 		$('form.giftcert').submit(function (e) {
@@ -54,6 +68,71 @@ module.exports = {
 			var form = $(this).parent('.giftcert');
 			e.preventDefault();
 			updateGiftCertForm(form, true);
+		});
+	},
+	addGiftCertToBasket: function () {
+		$('body').on('click', '.submit-giftCert', function (e) {
+			e.preventDefault();
+			if (validateGiftCert()) {
+				return false;
+			}
+			var giftCertCode = $('.giftCertCode').val();
+			var url = $(this).data('url');
+			var $balance = $('.balance');
+			$.ajax({
+				url: url,
+				type: 'post',
+				dataType: 'json',
+				data: { giftCertCode: giftCertCode },
+				success: function (data) {
+					if (data.error) {
+						if (data.redirectUrl) {
+							window.location.href = data.redirectUrl;
+						} else if (data.errorMessage) {
+							$balance.html(data.errorMessage).removeClass('success').addClass('error');
+							return;
+						}
+					} else {
+						$('body').trigger('checkout:updateCheckoutView',
+							{
+								order: data.order,
+                        		customer: data.customer,
+                        		options: { keepOpen: true }
+							}
+						);
+					}
+				}
+			});
+
+			return false;
+		});
+	},
+	checkBalance: function () {
+		$('body').on('click', '.check-balance', function (e) {
+			e.preventDefault();
+			if (validateGiftCert()) {
+				return false;
+			}
+
+			var giftCertCode = $('.giftCertCode').val();
+			var $balance = $('.balance');
+			var url = $(this).data('url');
+
+			$.ajax({
+				url: url,
+				type: 'get',
+				dataType: 'json',
+				data: { giftCertCode: giftCertCode },
+				success: function (data) {
+					if (!data.giftCertificate) {
+						$balance.html(data.error).removeClass('success').addClass('error');
+						return;
+					}
+					$balance.html(data.giftCertificate.balance).removeClass('error').addClass('success');
+				}
+			});
+
+			return false;
 		});
 	}
 };

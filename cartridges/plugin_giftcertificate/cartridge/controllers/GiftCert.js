@@ -6,9 +6,11 @@ var Transaction = require('dw/system/Transaction');
 var URLUtils = require('dw/web/URLUtils');
 var BasketMgr = require('dw/order/BasketMgr');
 var Resource = require('dw/web/Resource');
+var GiftCertificateMgr = require('dw/order/GiftCertificateMgr');
 
 
 var giftCertHelper = require('*/cartridge/scripts/helpers/giftCertHelpers');
+var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
 
 /**
  * Renders form for adding gift certificate
@@ -32,7 +34,6 @@ server.get('Purchase', function (req, res, next) {
  */
 server.post('AddToBasket', server.middleware.https, function (req, res, next) {
     var formErrors = require('*/cartridge/scripts/formErrors');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
     var giftCertForm = giftCertHelper.processAddToBasket(server.forms.getForm('giftcert'));
 
     if (giftCertForm.valid) {
@@ -72,7 +73,6 @@ server.post('AddToBasket', server.middleware.https, function (req, res, next) {
  */
 server.post('Update', server.middleware.https, function (req, res, next) {
     var formErrors = require('*/cartridge/scripts/formErrors');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
 
     var giftCertForm = giftCertHelper.processAddToBasket(server.forms.getForm('giftcert'));
 
@@ -114,8 +114,6 @@ server.post('Update', server.middleware.https, function (req, res, next) {
  */
 server.get('RemoveGiftCertLineItem', server.middleware.https, function (req, res, next) {
     var CartModel = require('*/cartridge/models/cart');
-    var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
-
     var giftCertificateLineItemUUID = req.querystring.uuid;
     var giftCertificateLineItem = null;
     var currentBasket = BasketMgr.getCurrentOrNewBasket();
@@ -182,5 +180,96 @@ server.get('Edit', server.middleware.https, function (req, res, next) {
     return next();
     
 });
+
+/**
+ * Rednerd the gift certificate form to edit an existing added certificate
+ */
+server.get('CheckBalance', server.middleware.https, function (req, res, next) {
+    var formatMoney = require('dw/util/StringUtils').formatMoney;
+    var giftCertCode = req.querystring.giftCertCode;
+
+    // fetch the gift certificate
+    var giftCertificate = GiftCertificateMgr.getGiftCertificateByCode(giftCertCode);
+
+    if (giftCertificate && giftCertificate.isEnabled()) {
+        res.json({
+            giftCertificate: {
+                ID: giftCertificate.getGiftCertificateCode(),
+                balance: Resource.msgf('billing.giftcertbalance','giftcert', null, formatMoney(giftCertificate.getBalance()))
+            }
+        });
+    } else {
+        res.json({
+            error: Resource.msg('billing.giftcertinvalid', 'giftcert', null)
+        });
+    }
+
+    return next();
+});
+
+/**
+ * Rednerd the gift certificate form to edit an existing added certificate
+ */
+server.post('AddGiftCertificate', server.middleware.https, function (req, res, next) {
+    var OrderModel = require('*/cartridge/models/order');
+    var AccountModel = require('*/cartridge/models/account');
+    var Locale = require('dw/util/Locale');
+    var currentBasket = BasketMgr.getCurrentOrNewBasket();
+    var gc, newGCPaymentInstrument;
+
+    if (!currentBasket) {
+        res.json({
+            error: true,
+            redirectUrl: URLUtils.url('Cart-Show').toString()
+        });
+        return next();
+    }
+
+    var giftCertCode = req.form.giftCertCode;
+
+    if (!empty(giftCertCode)) {
+        gc = GiftCertificateMgr.getGiftCertificateByCode(giftCertCode);
+
+        if (!gc || !gc.isEnabled() || (gc.getStatus() === gc.STATUS_PENDING)) {// make sure exists
+            result = Resource.msg('billinggiftcert.giftcertinvalid', 'giftcert', null);
+        } else if (gc.getStatus() === gc.STATUS_REDEEMED) {// make sure it has not been fully redeemed
+            result = Resource.msg('billinggiftcert.giftcertnofunds', 'giftcert', null);
+        } else if (gc.balance.currencyCode !== currentBasket.getCurrencyCode()) {// make sure the GC is in the right currency
+            result = Resource.msg('billing.GIFTCERTIFICATE_CURRENCY_MISMATCH', 'giftcert', null);
+        } else {
+            newGCPaymentInstrument = Transaction.wrap(function () {
+                gcPaymentInstrument = giftCertHelper.createGiftCertificatePaymentInstrument(currentBasket, gc);
+                basketCalculationHelpers.calculateTotals(currentBasket);
+                return gcPaymentInstrument;
+            });
+
+            var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
+            var currentLocale = Locale.getLocale(req.locale.id);
+
+            var basketModel = new OrderModel(
+                currentBasket,
+                { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
+            );
+
+            res.json({
+                order: basketModel,
+                customer: new AccountModel(req.currentCustomer),
+                error: false,
+                giftCert: gcPaymentInstrument
+            });
+
+            return next();
+        }
+    }
+
+    res.json({
+        error: true,
+        errorMessage: result
+    });
+
+    return next();
+});
+
+
 
 module.exports = server.exports();
