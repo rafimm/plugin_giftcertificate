@@ -270,6 +270,35 @@ server.post('AddGiftCertificate', server.middleware.https, function (req, res, n
     return next();
 });
 
+/**
+ * Rednerd the gift certificate form to edit an existing added certificate
+ */
+server.get('RemoveGiftCertificate', server.middleware.https, function (req, res, next) {
+    var giftCertCode = req.querystring.giftCertificateID;
+
+    if (!empty(giftCertCode)) {
+        var currentBasket = BasketMgr.getCurrentOrNewBasket();
+
+        var response = Transaction.wrap(function () {
+            giftCertHelper.removeGiftCertificatePaymentInstrument(currentBasket, giftCertCode);
+            basketCalculationHelpers.calculateTotals(currentBasket);
+            return true;
+        });
+        if (response) {
+            res.json({
+                success: true
+            });
+        }
+    } else {
+        res.json({
+            error: true,
+            errorMessage: Resource.msg('billinggiftcert.giftcertinvalid', 'giftcert', null)
+        });
+    }
+
+    return next();
+});
+
 
 
 module.exports = server.exports();

@@ -134,5 +134,25 @@ module.exports = {
 
 			return false;
 		});
+	},
+	deleteGiftCert: function () {
+		$('body').on('click', '.giftcert-pi span', function (e) {
+			var $this = $(this);
+			e.preventDefault();
+			var url = $(this).parent('.remove').attr('href');
+			var $balance = $('.balance');
+			$.ajax({
+				url: url,
+				type: 'get',
+				dataType: 'json',
+				success: function (data) {
+					if (data.error) {
+						$balance.html(data.errorMessage).removeClass('success').addClass('error');
+					} else {
+						$this.parents().eq(1).remove();
+					}
+				}
+			});
+		});
 	}
 };

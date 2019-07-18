@@ -255,6 +255,30 @@ var createGiftCertificatePaymentInstrument = function (currentBasket, giftCertif
 	return currentBasket.createGiftCertificatePaymentInstrument(giftCertificate.getGiftCertificateCode(), amountToRedeem);
 };
 
+/**
+ * Removes a gift certificate payment instrument with the given gift certificate ID
+ * from the basket.
+ *
+ * @transactional
+ * @param {dw.order.Basket} currentBasket - current basket
+ * @param {string} giftCertificateID - The ID of the gift certificate to remove the payment instrument for.
+ */
+var removeGiftCertificatePaymentInstrument = function (currentBasket, giftCertificateID) {
+	// Iterates over the list of payment instruments.
+	var gcPaymentInstrs = currentBasket.getGiftCertificatePaymentInstruments(giftCertificateID);
+	var iter = gcPaymentInstrs.iterator();
+	var existingPI = null;
+
+	// Remove (one or more) gift certificate payment
+	// instruments for this gift certificate ID.
+	while (iter.hasNext()) {
+		existingPI = iter.next();
+		currentBasket.removePaymentInstrument(existingPI);
+	}
+
+	return;
+};
+
 module.exports = {
 	getGiftCertificateLineItemByUUID: getGiftCertificateLineItemByUUID,
 	getGiftLineItemObj: getGiftLineItemObj,
@@ -264,5 +288,6 @@ module.exports = {
 	processAddToBasket: processAddToBasket,
 	createGiftCertificateFromLineItem: createGiftCertificateFromLineItem,
 	sendGiftCertificateEmail: sendGiftCertificateEmail,
-	createGiftCertificatePaymentInstrument: createGiftCertificatePaymentInstrument
+	createGiftCertificatePaymentInstrument: createGiftCertificatePaymentInstrument,
+	removeGiftCertificatePaymentInstrument: removeGiftCertificatePaymentInstrument
 };

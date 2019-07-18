@@ -3,6 +3,29 @@ var base = module.superModule;
 
 var GiftCertificateLineItemsModel = require('*/cartridge/models/giftCertificateLineItems');
 
+var getGcPIInfo = function (gcPIs) {
+	var formatMoney = require('dw/util/StringUtils').formatMoney;
+	var gc = {};
+	var gcObj = [];
+	var total = 0;
+	if (gcPIs.size() > 0) {
+		for (var i = 0; i < gcPIs.size(); i++) {
+			var gcPiObj = {};
+			var gcPI = gcPIs[i];
+			total += gcPI.paymentTransaction.amount;
+			gcPiObj.maskedGiftCertifiacte = gcPI.getMaskedGiftCertificateCode();
+			gcPiObj.amount = formatMoney(gcPI.paymentTransaction.amount);
+			gcPiObj.giftCertCode = gcPI.getGiftCertificateID();
+			gcObj.push(gcPiObj);
+		}
+
+		gc.gcPIs = gcObj;
+		gc.total = parseFloat(total, 2);
+	}
+
+	return gc;
+};
+
 /**
  * Order class that represents the current order
  * @param {dw.order.LineItemCtnr} lineItemContainer - Current users's basket/order
@@ -14,7 +37,6 @@ var GiftCertificateLineItemsModel = require('*/cartridge/models/giftCertificateL
  */
 function OrderModel(lineItemContainer, options) {
 	base.call(this, lineItemContainer, options);
-
 	// eslint-disable-next-line no-undef
 	if (!empty(lineItemContainer)) {
 		var giftCertificateLineItemsModel = new GiftCertificateLineItemsModel(lineItemContainer.getGiftCertificateLineItems(), 'order');
@@ -23,9 +45,10 @@ function OrderModel(lineItemContainer, options) {
 		if (!empty(this.items)) {
 			this.items.totalQuantity += giftCertificateLineItemsModel.totalQuantity;
 		}
-		// this.totals.subTotal += parseFloat(giftCertificateLineItemsModel.subTotal);
+		this.gcPIInfo = getGcPIInfo(lineItemContainer.giftCertificatePaymentInstruments);
 	} else {
 		this.giftCertificateItems = [];
+		this.gcPIInfo = [];
 	}
 }
 
