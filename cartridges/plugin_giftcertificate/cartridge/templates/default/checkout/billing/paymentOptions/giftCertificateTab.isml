@@ -1,5 +1,5 @@
 <li class="nav-item" data-method-id="${paymentOption.ID}">
-    <a class="nav-link gift-cert-tab" data-toggle="tab" href="#gift-cert-tab" role="tab">
+    <a class="nav-link gift-cert-tab ${(gcPITotal <= 0 && pdict.order.totalGrossPrice.value > gcPITotal) ? '' : 'active'} " data-toggle="tab" href="#gift-cert-tab" role="tab">
         <img class="gift-cert-option"
                 src="${URLUtils.staticURL('/images/gift-card-pay.jpg')}"
                 height="32"

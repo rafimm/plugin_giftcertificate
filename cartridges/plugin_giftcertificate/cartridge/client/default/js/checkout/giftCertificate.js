@@ -54,8 +54,10 @@ module.exports = {
 							return;
 						}
 					} else {
-						var giftCertHtmlObj = $(data.renderedGiftCertHtml).find('.gift-cert-form');
-						$('.gift-cert-form').replaceWith(giftCertHtmlObj);
+						var tabs = $(data.renderedGiftCertHtml).find('.payment-options');
+						$('.payment-options').replaceWith(tabs);
+						var content = $(data.renderedGiftCertHtml).find('.payment-content');
+						$('.payment-content').replaceWith(content);
 					}
 				}
 			});
@@ -92,9 +94,9 @@ module.exports = {
 		});
 	},
 	deleteGiftCert: function () {
-		$('body').on('click', '.giftcert-pi span', function (e) {
+		$('body').on('click', '.giftcert-pi .remove', function (e) {
 			e.preventDefault();
-			var url = $(this).parent('.remove').attr('href');
+			var url = $(this).attr('href');
 			var $balance = $('.balance');
 			$.ajax({
 				url: url,
@@ -104,8 +106,10 @@ module.exports = {
 					if (data.error) {
 						$balance.html(data.errorMessage).removeClass('success').addClass('error');
 					} else {
-						var giftCertHtmlObj = $(data.renderedGiftCertHtml).find('.gift-cert-form');
-						$('.gift-cert-form').replaceWith(giftCertHtmlObj);
+						var tabs = $(data.renderedGiftCertHtml).find('.payment-options');
+						$('.payment-options').replaceWith(tabs);
+						var content = $(data.renderedGiftCertHtml).find('.payment-content');
+						$('.payment-content').replaceWith(content);
 					}
 				}
 			});

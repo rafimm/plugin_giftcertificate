@@ -239,8 +239,9 @@ var createGiftCertificatePaymentInstrument = function (currentBasket, giftCertif
  * @returns {string|null} newly stored payment Instrument
  */
 function getRenderedGCInstruments(req, currentBasket, paymentForm) {
-	var OrderModel = require('*/cartridge/models/order');
 	var Locale = require('dw/util/Locale');
+	var OrderModel = require('*/cartridge/models/order');
+	var AccountModel = require('*/cartridge/models/account');
 	var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
 	var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
 	var currentLocale = Locale.getLocale(req.locale.id);
@@ -250,11 +251,14 @@ function getRenderedGCInstruments(req, currentBasket, paymentForm) {
 		{ usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
 	);
 
+	var accountModel = new AccountModel(req.currentCustomer);
+
 	var context = {};
 	context.order = basketModel;
 	context.forms = { billingForm: paymentForm };
+	context.customer = accountModel;
 
-	return renderTemplateHelper.getRenderedHtml(context, 'checkout/billing/paymentOptions/giftCertificateContent');
+	return renderTemplateHelper.getRenderedHtml(context, 'checkout/billing/paymentOptions');
 }
 
 module.exports = {
