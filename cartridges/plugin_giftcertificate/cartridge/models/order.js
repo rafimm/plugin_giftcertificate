@@ -46,6 +46,7 @@ function OrderModel(lineItemContainer, options) {
 			this.items.totalQuantity += giftCertificateLineItemsModel.totalQuantity;
 		}
 		this.gcPIInfo = getGcPIInfo(lineItemContainer.giftCertificatePaymentInstruments);
+		this.totalGrossPrice = lineItemContainer.totalGrossPrice;
 	} else {
 		this.giftCertificateItems = [];
 		this.gcPIInfo = [];

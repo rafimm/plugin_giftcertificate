@@ -45,4 +45,18 @@ function Authorize(orderNumber, pmntInstrument, pmntProcessor) {
 	return { fieldErrors: fieldErrors, serverErrors: serverErrors, error: error };
 }
 
+/**
+ * Verifies that entered credit card information is a valid card. If the information is valid a
+ * credit card payment instrument is created
+ * @param {dw.order.Basket} basket Current users's basket
+ * @param {Object} paymentInformation - the payment information
+ * @return {Object} returns an error object
+ */
+function Handle(basket, paymentInformation) {
+	var cardErrors = {};
+	var serverErrors = [];
+	return { fieldErrors: cardErrors, serverErrors: serverErrors, error: false };
+}
+
 exports.Authorize = Authorize;
+exports.Handle = Handle;

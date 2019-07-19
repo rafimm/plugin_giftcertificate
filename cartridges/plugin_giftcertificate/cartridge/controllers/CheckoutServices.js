@@ -19,15 +19,20 @@ server.get('RemoveGiftCertificate', server.middleware.https, function (req, res,
 
     if (!empty(giftCertCode)) {
         var currentBasket = BasketMgr.getCurrentOrNewBasket();
+        var paymentForm = server.forms.getForm('billing');
 
         var response = Transaction.wrap(function () {
             COHelpers.removeGiftCertificatePaymentInstrument(currentBasket, giftCertCode);
             basketCalculationHelpers.calculateTotals(currentBasket);
             return true;
         });
+
+        var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments (req, currentBasket, paymentForm);
+
         if (response) {
             res.json({
-                success: true
+                success: true,
+                renderedGiftCertHtml: renderedGiftCertHtml,
             });
         }
     } else {
@@ -71,13 +76,11 @@ server.get('CheckBalance', server.middleware.https, function (req, res, next) {
  * Rednerd the gift certificate form to edit an existing added certificate
  */
 server.post('AddGiftCertificate', server.middleware.https, function (req, res, next) {
-    var OrderModel = require('*/cartridge/models/order');
-    var AccountModel = require('*/cartridge/models/account');
-    var Locale = require('dw/util/Locale');
     var GiftCertificateMgr = require('dw/order/GiftCertificateMgr');
 
     var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');
     var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+    var formErrors = require('*/cartridge/scripts/formErrors');
 
     var currentBasket = BasketMgr.getCurrentOrNewBasket();
     var gc, newGCPaymentInstrument;
@@ -90,10 +93,24 @@ server.post('AddGiftCertificate', server.middleware.https, function (req, res, n
         return next();
     }
 
-    var giftCertCode = req.form.giftCertCode;
+    var paymentForm = server.forms.getForm('billing');
+    var giftCertCode = paymentForm.giftCertFields.giftCertCode;
+    var r = giftCertCode.value;
 
-    if (!empty(giftCertCode)) {
-        gc = GiftCertificateMgr.getGiftCertificateByCode(giftCertCode);
+    if (empty(giftCertCode.value)) {
+		giftCertCode.valid = false;
+		giftCertCode.error = Resource.msg('billinggiftcert.giftcertinvalid', 'giftcert', null);
+        paymentForm.valid = false;
+        
+        res.json({
+            fields: formErrors.getFormErrors(paymentForm)
+        });
+
+        return next();
+	}
+
+    if (!empty(giftCertCode.value)) {
+        gc = GiftCertificateMgr.getGiftCertificateByCode(giftCertCode.value);
 
         if (!gc || !gc.isEnabled() || (gc.getStatus() === gc.STATUS_PENDING)) {// make sure exists
             result = Resource.msg('billinggiftcert.giftcertinvalid', 'giftcert', null);
@@ -108,19 +125,11 @@ server.post('AddGiftCertificate', server.middleware.https, function (req, res, n
                 return gcPaymentInstrument;
             });
 
-            var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
-            var currentLocale = Locale.getLocale(req.locale.id);
-
-            var basketModel = new OrderModel(
-                currentBasket,
-                { usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
-            );
+            var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments (req, currentBasket, paymentForm);
 
             res.json({
-                order: basketModel,
-                customer: new AccountModel(req.currentCustomer),
-                error: false,
-                giftCert: gcPaymentInstrument
+                renderedGiftCertHtml: renderedGiftCertHtml,
+                error: false
             });
 
             return next();

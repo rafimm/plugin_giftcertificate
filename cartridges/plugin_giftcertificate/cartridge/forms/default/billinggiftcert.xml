@@ -6,7 +6,7 @@
 		formid="giftCertCode" 
 		label="billinggiftcert.giftcertlabel" 
 		type="string" 
-		mandatory="false" 
+		mandatory="true" 
 		missing-error="billinggiftcert.giftcertinvalid" 
 		value-error="billinggiftcert.giftcertinvalid" 
 	/>

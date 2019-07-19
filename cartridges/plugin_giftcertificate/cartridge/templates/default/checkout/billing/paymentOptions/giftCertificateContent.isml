@@ -11,7 +11,7 @@
                         <label class="form-control-label" for="giftCert">${Resource.msg('billing.giftcertlabel','giftcert',null)}</label>
                         <div class="gift-cert-wrapper" data-missing-error="${Resource.msg('giftcert.missing.error','giftcert',null)}">
                             <input type="text" class="form-control giftCertCode" id="giftCert"
-                                value="QLLPWOCJJATZQRLS"
+                                value=""
                                 <isprint value=${giftCertFields.giftCertCode.attributes} encoding="off"/>
                                 aria-describedby="giftCertInvalidMessage"
                             >
@@ -23,7 +23,7 @@
                     <div class="form-row redemption giftcert">
                         <isif condition="${!empty(pdict.order.gcPIInfo)}">
                             <isset name="gcPIs" value="${pdict.order.gcPIInfo.gcPIs}" scope="page" />
-                            <isset name="gcTotal" value="${pdict.order.gcPIInfo.total}" scope="page" />
+                            <isset name="gcPITotal" value="${pdict.order.gcPIInfo.total}" scope="page" />
                         </isif>
                         <isloop items="${gcPIs}" var="gcPi">
                             <div class="success giftcert-pi" id="gc-${gcPi.giftCertCode}">
@@ -32,9 +32,7 @@
                                     <span>Remove</span>
                                 </a>
                             </div>
-                        </isloop>
-
-                        ${gcTotal}
+                        </isloop>     
                     </div>
                 </div>
 
@@ -48,8 +46,16 @@
                         </button>
                 </div>
             </div>
+
+            <div class="row gift-cert-used">
+                <isif condition="${pdict.order.totalGrossPrice.value <= gcPITotal}">
+                    <div class="form-indent">
+                        <isif condition="${gcPITotal>0}">${Resource.msg('billing.giftcertnomethod','giftcert',null)}<iselse/>${Resource.msg('billing.zerobalance','giftcert',null)}</isif>
+                        <input type="hidden" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="${dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE}" />
+                        <input type="hidden" id="noPaymentNeeded" name="noPaymentNeeded" value="true" />
+                    </div>
+                </isif>
+            </div>
         </fieldset>
-        
-        <div class="gift-cert-error"></div>
     </fieldset>
 </div>

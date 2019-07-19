@@ -231,6 +231,32 @@ var createGiftCertificatePaymentInstrument = function (currentBasket, giftCertif
 	return currentBasket.createGiftCertificatePaymentInstrument(giftCertificate.getGiftCertificateCode(), amountToRedeem);
 };
 
+/**
+ * renders the Gift Card payment
+ * @param {Object} req - The request object
+ * @param {dw.order.Basket} currentBasket - The account model for the current customer
+ * @param {Object} paymentForm - payment form
+ * @returns {string|null} newly stored payment Instrument
+ */
+function getRenderedGCInstruments(req, currentBasket, paymentForm) {
+	var OrderModel = require('*/cartridge/models/order');
+	var Locale = require('dw/util/Locale');
+	var renderTemplateHelper = require('*/cartridge/scripts/renderTemplateHelper');
+	var usingMultiShipping = req.session.privacyCache.get('usingMultiShipping');
+	var currentLocale = Locale.getLocale(req.locale.id);
+
+	var basketModel = new OrderModel(
+		currentBasket,
+		{ usingMultiShipping: usingMultiShipping, countryCode: currentLocale.country, containerView: 'basket' }
+	);
+
+	var context = {};
+	context.order = basketModel;
+	context.forms = { billingForm: paymentForm };
+
+	return renderTemplateHelper.getRenderedHtml(context, 'checkout/billing/paymentOptions/giftCertificateContent');
+}
+
 module.exports = {
 	getFirstNonDefaultShipmentWithProductLineItems: base.getFirstNonDefaultShipmentWithProductLineItems,
 	ensureNoEmptyShipments: base.ensureNoEmptyShipments,
@@ -258,5 +284,6 @@ module.exports = {
 	ensureValidShipments: base.ensureValidShipments,
 	setGift: base.setGift,
 	removeGiftCertificatePaymentInstrument: removeGiftCertificatePaymentInstrument,
-	createGiftCertificatePaymentInstrument: createGiftCertificatePaymentInstrument
+	createGiftCertificatePaymentInstrument: createGiftCertificatePaymentInstrument,
+	getRenderedGCInstruments: getRenderedGCInstruments
 };

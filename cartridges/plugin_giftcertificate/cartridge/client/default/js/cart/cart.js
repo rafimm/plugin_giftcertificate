@@ -367,7 +367,6 @@ module.exports = function () {
 			type: 'get',
 			dataType: 'json',
 			success: function (data) {
-				console.log(data);
 				if (data.basket.items.length === 0 && data.basket.giftCertificateItems.length === 0) {
 					$('.cart').empty().append('<div class="row"> ' +
 						'<div class="col-12 text-center"> ' +
