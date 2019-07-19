@@ -118,7 +118,7 @@ function calculatePaymentTransaction(currentBasket) {
 	if (!nonGCPaymentInstrument) {
 		// If there are no other payment types and the gift certificate
 		// does not cover the open amount, then return false.
-		if (giftCertTotal < orderTotal) {
+		if (giftCertTotal.value >= orderTotal.value) {
 			result.error = false;
 			return result;
 		}
