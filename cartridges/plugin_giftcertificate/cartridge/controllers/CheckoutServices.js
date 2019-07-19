@@ -27,7 +27,7 @@ server.get('RemoveGiftCertificate', server.middleware.https, function (req, res,
             return true;
         });
 
-        var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments (req, currentBasket, paymentForm);
+        var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments(req, currentBasket, paymentForm);
 
         if (response) {
             res.json({
@@ -125,7 +125,7 @@ server.post('AddGiftCertificate', server.middleware.https, function (req, res, n
                 return gcPaymentInstrument;
             });
 
-            var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments (req, currentBasket, paymentForm);
+            var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments(req, currentBasket, paymentForm);
 
             res.json({
                 renderedGiftCertHtml: renderedGiftCertHtml,
