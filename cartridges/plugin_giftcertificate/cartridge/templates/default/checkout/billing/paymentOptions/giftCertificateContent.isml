@@ -28,7 +28,7 @@
                         <isloop items="${gcPIs}" var="gcPi">
                             <div class="success giftcert-pi" id="gc-${gcPi.giftCertCode}">
                                 ${Resource.msgf('billing.giftcertredeemed', 'giftcert', null, gcPi.amount, gcPi.maskedGiftCertifiacte)}
-                                <a id="rgc-${gcPi.giftCertCode}" class="remove" href="${URLUtils.https('GiftCert-RemoveGiftCertificate', 'giftCertificateID', gcPi.giftCertCode,'format','old')}">
+                                <a id="rgc-${gcPi.giftCertCode}" class="remove" href="${URLUtils.https('CheckoutServices-RemoveGiftCertificate', 'giftCertificateID', gcPi.giftCertCode,'format','old')}">
                                     <span>Remove</span>
                                 </a>
                             </div>
@@ -39,11 +39,11 @@
                 </div>
 
                 <div class="col-md-6 col-sm-12 gift-cert-buttons">
-                        <button class="btn btn-primary submit-giftCert" type="button" name="submitGift" value="submit-gifrcert" data-url="${URLUtils.https('GiftCert-AddGiftCertificate')}">
+                        <button class="btn btn-primary submit-giftCert" type="button" name="submitGift" value="submit-gifrcert" data-url="${URLUtils.https('CheckoutServices-AddGiftCertificate')}">
                             <isprint value="${Resource.msg('giftcert.button.add','giftcert',null)}" />
                         </button>
 
-                        <button class="btn btn-primary check-balance" type="button" name="checkBalance" value="gift-cert-balance" data-url="${URLUtils.https('GiftCert-CheckBalance')}">
+                        <button class="btn btn-primary check-balance" type="button" name="checkBalance" value="gift-cert-balance" data-url="${URLUtils.https('CheckoutServices-CheckBalance')}">
                             <isprint value="${Resource.msg('giftcert.button.checkbalance','giftcert',null)}" />
                         </button>
                 </div>

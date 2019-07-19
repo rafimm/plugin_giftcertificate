@@ -147,6 +147,90 @@ function calculatePaymentTransaction(currentBasket) {
 	return result;
 }
 
+/**
+ * Removes a gift certificate payment instrument with the given gift certificate ID
+ * from the basket.
+ *
+ * @transactional
+ * @param {dw.order.Basket} currentBasket - current basket
+ * @param {string} giftCertificateID - The ID of the gift certificate to remove the payment instrument for.
+ */
+var removeGiftCertificatePaymentInstrument = function (currentBasket, giftCertificateID) {
+	// Iterates over the list of payment instruments.
+	var gcPaymentInstrs = currentBasket.getGiftCertificatePaymentInstruments(giftCertificateID);
+	var iter = gcPaymentInstrs.iterator();
+	var existingPI = null;
+
+	Transaction.wrap(function () {
+		// Remove (one or more) gift certificate payment
+		// instruments for this gift certificate ID.
+		while (iter.hasNext()) {
+			existingPI = iter.next();
+			currentBasket.removePaymentInstrument(existingPI);
+		}
+	});
+	return;
+};
+
+/**
+ * Creates a gift certificate payment instrument from the given gift certificate ID for the basket. The
+ * method attempts to redeem the current balance of the gift certificate. If the current balance exceeds the
+ * order total, this amount is redeemed and the balance is lowered.
+ *
+ * @transactional
+ * @param {dw.order.Basket} currentBasket - current basket
+ * @param {dw.order.GiftCertificate} giftCertificate - The gift certificate.
+ * @returns {dw.order.PaymentInstrument} The created PaymentInstrument.
+ */
+var createGiftCertificatePaymentInstrument = function (currentBasket, giftCertificate) {
+	// Removes any duplicates.
+	// Iterates over the list of payment instruments to check.
+	var gcPaymentInstrs = currentBasket.getGiftCertificatePaymentInstruments(giftCertificate.getGiftCertificateCode()).iterator();
+	var existingPI = null;
+
+	// Removes found gift certificates, to prevent duplicates.
+	while (gcPaymentInstrs.hasNext()) {
+		existingPI = gcPaymentInstrs.next();
+		currentBasket.removePaymentInstrument(existingPI);
+	}
+
+	// Fetches the balance and the order total.
+	var balance = giftCertificate.getBalance();
+	var orderTotal = currentBasket.getTotalGrossPrice();
+
+	// Sets the amount to redeem equal to the remaining balance.
+	var amountToRedeem = balance;
+
+	// Since there may be multiple gift certificates, adjusts the amount applied to the current
+	// gift certificate based on the order total minus the aggregate amount of the current gift certificates.
+
+	var giftCertTotal = new Money(0.0, currentBasket.getCurrencyCode());
+
+	// Iterates over the list of gift certificate payment instruments
+	// and updates the total redemption amount.
+	gcPaymentInstrs = currentBasket.getGiftCertificatePaymentInstruments().iterator();
+	var orderPI = null;
+
+	while (gcPaymentInstrs.hasNext()) {
+		orderPI = gcPaymentInstrs.next();
+		giftCertTotal = giftCertTotal.add(orderPI.getPaymentTransaction().getAmount());
+	}
+
+	// Calculates the remaining order balance.
+	// This is the remaining open order total that must be paid.
+	var orderBalance = orderTotal.subtract(giftCertTotal);
+
+	// The redemption amount exceeds the order balance.
+	// use the order balance as maximum redemption amount.
+	if (orderBalance < amountToRedeem) {
+		// Sets the amount to redeem equal to the order balance.
+		amountToRedeem = orderBalance;
+	}
+
+	// Creates a payment instrument from this gift certificate.
+	return currentBasket.createGiftCertificatePaymentInstrument(giftCertificate.getGiftCertificateCode(), amountToRedeem);
+};
+
 module.exports = {
 	getFirstNonDefaultShipmentWithProductLineItems: base.getFirstNonDefaultShipmentWithProductLineItems,
 	ensureNoEmptyShipments: base.ensureNoEmptyShipments,
@@ -172,5 +256,7 @@ module.exports = {
 	getRenderedPaymentInstruments: base.getRenderedPaymentInstruments,
 	sendConfirmationEmail: base.sendConfirmationEmail,
 	ensureValidShipments: base.ensureValidShipments,
-	setGift: base.setGift
+	setGift: base.setGift,
+	removeGiftCertificatePaymentInstrument: removeGiftCertificatePaymentInstrument,
+	createGiftCertificatePaymentInstrument: createGiftCertificatePaymentInstrument
 };
