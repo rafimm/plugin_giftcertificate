@@ -1,3 +1,4 @@
+var cleave = require('base/components/cleave');
 /**
  * Checks if user has entered gift certificate or not.
  * @return {boolean} true/false
@@ -75,6 +76,10 @@ module.exports = {
 							$('.gift-cert-tab').trigger('click');
 							// disableNonGCTabs();
 						}
+
+						if ($('.cardNumber').length && $('#cardType').length) {
+							cleave.handleCreditCardNumber('.cardNumber', '#cardType');
+						}
 					}
 				}
 			});
@@ -127,15 +132,20 @@ module.exports = {
 						$('.payment-options').replaceWith(tabs);
 						var content = $(data.renderedGiftCertHtml).find('.payment-content');
 						$('.payment-content').replaceWith(content);
+
+						if ($('.cardNumber').length && $('#cardType').length) {
+							cleave.handleCreditCardNumber('.cardNumber', '#cardType');
+						}
 					}
 				}
 			});
 		});
 	},
 	updatePaymentMethodId: function () {
-		$('.nav-tabs li').click(function () {
+		$('body').on('click', '.nav-tabs li', function () {
 			var method = $(this).data('method-id');
 			$('.payment-information').attr('data-payment-method-id', method);
+			$('.payment-information').data('payment-method-id', method);
 		});
 	}
 };

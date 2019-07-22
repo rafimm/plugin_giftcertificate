@@ -258,6 +258,16 @@ function getRenderedGCInstruments(req, currentBasket, paymentForm) {
 	context.forms = { billingForm: paymentForm };
 	context.customer = accountModel;
 
+	// Get rid of this from top-level ... should be part of OrderModel???
+	var currentYear = new Date().getFullYear();
+	var creditCardExpirationYears = [];
+
+	for (var j = 0; j < 10; j++) {
+		creditCardExpirationYears.push(currentYear + j);
+	}
+
+	context.expirationYears = creditCardExpirationYears;
+
 	return renderTemplateHelper.getRenderedHtml(context, 'checkout/billing/paymentOptions');
 }
 
