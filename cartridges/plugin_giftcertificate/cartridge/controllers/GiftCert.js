@@ -8,13 +8,15 @@ var BasketMgr = require('dw/order/BasketMgr');
 var Resource = require('dw/web/Resource');
 
 
+
 var giftCertHelper = require('*/cartridge/scripts/helpers/giftCertHelpers');
 var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalculationHelpers');
+var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
 
 /**
  * Renders form for adding gift certificate
  */
-server.get('Purchase', function (req, res, next) {
+server.get('Purchase', csrfProtection.generateToken, function (req, res, next) {
     var giftCertForm = server.forms.getForm('giftcert');
     giftCertForm.clear();
 
@@ -31,7 +33,7 @@ server.get('Purchase', function (req, res, next) {
 /**
  * Adds a gift certificate in basket
  */
-server.post('AddToBasket', server.middleware.https, function (req, res, next) {
+server.post('AddToBasket', csrfProtection.validateAjaxRequest, server.middleware.https, function (req, res, next) {
     var formErrors = require('*/cartridge/scripts/formErrors');
     var giftCertForm = giftCertHelper.processAddToBasket(server.forms.getForm('giftcert'));
 

@@ -100,5 +100,7 @@
                 ${Resource.msg('gitfcert.purchase.submit','giftcert',null)}
             </button>
         </isif>
+
+        <input type="hidden" name="${pdict.csrf.tokenName}" value="${pdict.csrf.token}"/>
     </form>
 </div>
