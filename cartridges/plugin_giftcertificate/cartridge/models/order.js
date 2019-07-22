@@ -47,9 +47,11 @@ function OrderModel(lineItemContainer, options) {
 		}
 		this.gcPIInfo = getGcPIInfo(lineItemContainer.giftCertificatePaymentInstruments);
 		this.totalGrossPrice = lineItemContainer.totalGrossPrice;
+		this.productLineItemSize = lineItemContainer.getProductLineItems().size();
 	} else {
 		this.giftCertificateItems = [];
 		this.gcPIInfo = [];
+		this.productLineItemSize = 0;
 	}
 }
 

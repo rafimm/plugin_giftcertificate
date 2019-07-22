@@ -51,6 +51,9 @@ var scrollAnimate = require('base/components/scrollAnimate');
 			'submitted'
 		];
 
+		// Variable to store flag for cart without product line items
+		var productLineItemExist = $('#checkout-main').data('productlineitemexist');
+
 		/**
 		 * Updates the URL to determine stage
 		 * @param {number} currentStage - The current stage the user is currently on in the checkout
@@ -483,8 +486,10 @@ var scrollAnimate = require('base/components/scrollAnimate');
 			 */
 			handlePrevStage: function () {
 				if (members.currentStage > 0) {
-					// move state back
-					members.currentStage--;
+					if (productLineItemExist === 'false' && members.currentStage !== 1) {
+						// move state back
+						members.currentStage--;
+					}
 					updateUrl(members.currentStage);
 				}
 
@@ -497,6 +502,9 @@ var scrollAnimate = require('base/components/scrollAnimate');
 			 */
 			gotoStage: function (stageName) {
 				members.currentStage = checkoutStages.indexOf(stageName);
+				if (productLineItemExist === 'false' && members.currentStage === 0) {
+					members.currentStage++;
+				}
 				updateUrl(members.currentStage);
 				$(plugin).attr('data-checkout-stage', checkoutStages[members.currentStage]);
 			}
