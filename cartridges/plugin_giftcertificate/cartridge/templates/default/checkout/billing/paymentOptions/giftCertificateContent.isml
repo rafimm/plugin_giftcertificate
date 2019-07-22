@@ -1,6 +1,6 @@
 <isset name="giftCertFields" value="${pdict.forms.billingForm.giftCertFields}" scope="page"/>
 
-<div class="tab-pane gift-cert-tab ${(gcPITotal <= 0 && pdict.order.totalGrossPrice.value > gcPITotal) ? '' : 'active'}" id="gift-cert-tab" role="tabpanel">
+<div class="tab-pane gift-cert-tab ${pdict.order.totalGrossPrice.value <= gcPITotal ? 'active' : ''}" id="gift-cert-tab" role="tabpanel">
     <fieldset class="payment-form-fields">
         <fieldset class="gift-cert-form">
             <div class="row">
@@ -45,15 +45,15 @@
                 </div>
             </div>
 
-            <div class="row gift-cert-used">
-                <isif condition="${pdict.order.totalGrossPrice.value <= gcPITotal}">
-                    <div class="col-sm-12">
-                        <isif condition="${gcPITotal>0}">${Resource.msg('billing.giftcertnomethod','giftcert',null)}<iselse/>${Resource.msg('billing.zerobalance','giftcert',null)}</isif>
-                        <input type="hidden" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="${dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE}" />
-                        <input type="hidden" id="noPaymentNeeded" name="noPaymentNeeded" value="true" />
-                    </div>
-                </isif>
-            </div>
+            <isif condition="${pdict.order.totalGrossPrice.value <= gcPITotal}">
+                <div class="row gift-cert-used">
+                        <div class="col-sm-12">
+                            <isif condition="${gcPITotal>0}">${Resource.msg('billing.giftcertnomethod','giftcert',null)}<iselse/>${Resource.msg('billing.zerobalance','giftcert',null)}</isif>
+                            <input type="hidden" name="${pdict.forms.billingForm.paymentMethod.htmlName}" value="${dw.order.PaymentInstrument.METHOD_GIFT_CERTIFICATE}" />
+                            <input type="hidden" id="noPaymentNeeded" name="noPaymentNeeded" value="true" />
+                        </div>
+                </div>
+            </isif>
         </fieldset>
     </fieldset>
 </div>

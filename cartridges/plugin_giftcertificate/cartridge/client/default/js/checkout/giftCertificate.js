@@ -16,6 +16,18 @@ var validateGiftCert = function () {
 	return false;
 };
 
+/**
+ * Function used to disable the other payment tabs if complete payment
+ * is done via Gift Certificate
+ */
+// var disableNonGCTabs = function () {
+// 	$('.nav-tabs li').each(function () {
+// 		if ($(this).data('method-id') !== 'GIFT_CERTIFICATE') {
+// 			$(this).hide();
+// 		}
+// 	});
+// };
+
 
 module.exports = {
 	addGiftCertToBasket: function () {
@@ -58,6 +70,11 @@ module.exports = {
 						$('.payment-options').replaceWith(tabs);
 						var content = $(data.renderedGiftCertHtml).find('.payment-content');
 						$('.payment-content').replaceWith(content);
+
+						if (('.payment-content .gift-cert-used').length > 0) {
+							$('.gift-cert-tab').trigger('click');
+							// disableNonGCTabs();
+						}
 					}
 				}
 			});
@@ -113,6 +130,12 @@ module.exports = {
 					}
 				}
 			});
+		});
+	},
+	updatePaymentMethodId: function () {
+		$('.nav-tabs li').click(function () {
+			var method = $(this).data('method-id');
+			$('.payment-information').attr('data-payment-method-id', method);
 		});
 	}
 };
