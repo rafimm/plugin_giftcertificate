@@ -9,6 +9,8 @@ var Resource = require('dw/web/Resource');
 var BasketMgr = require('dw/order/BasketMgr');
 var Transaction = require('dw/system/Transaction');
 
+var csrfProtection = require('*/cartridge/scripts/middleware/csrf');
+
 /**
  * Rednerd the gift certificate form to edit an existing added certificate
  */
@@ -75,7 +77,7 @@ server.get('CheckBalance', server.middleware.https, function (req, res, next) {
 /**
  * Rednerd the gift certificate form to edit an existing added certificate
  */
-server.post('AddGiftCertificate', server.middleware.https, function (req, res, next) {
+server.post('AddGiftCertificate', server.middleware.https, csrfProtection.validateAjaxRequest, function (req, res, next) {
     var GiftCertificateMgr = require('dw/order/GiftCertificateMgr');
 
     var COHelpers = require('*/cartridge/scripts/checkout/checkoutHelpers');

@@ -37,6 +37,20 @@ module.exports = {
 			if (validateGiftCert()) {
 				return false;
 			}
+
+			var billingAddressForm = $('#dwfrm_billing .billing-address-block :input').serialize();
+
+			$('body').trigger('checkout:serializeBilling', {
+				form: $('#dwfrm_billing .billing-address-block'),
+				data: billingAddressForm,
+				callback: function (data) {
+					if (data) {
+						billingAddressForm = data;
+					}
+				}
+			});
+
+
 			var activeTabId = $('.tab-pane.active').attr('id');
 			var paymentInfoSelector = '#dwfrm_billing .' + activeTabId + ' .payment-form-fields :input';
 			var paymentInfoForm = $(paymentInfoSelector).serialize();
@@ -51,7 +65,7 @@ module.exports = {
 				}
 			});
 
-			var paymentForm = paymentInfoForm;
+			var paymentForm = billingAddressForm + '&' + paymentInfoForm;
 			var $balance = $('.balance');
 			$.ajax({
 				url: $(this).data('url'),
@@ -80,6 +94,13 @@ module.exports = {
 						if ($('.cardNumber').length && $('#cardType').length) {
 							cleave.handleCreditCardNumber('.cardNumber', '#cardType');
 						}
+					}
+				},
+				error: function (err) {
+					// enable the next:Place Order button here
+					$('body').trigger('checkout:enableButton', '.next-step-button button');
+					if (err.responseJSON && err.responseJSON.redirectUrl) {
+						window.location.href = err.responseJSON.redirectUrl;
 					}
 				}
 			});
