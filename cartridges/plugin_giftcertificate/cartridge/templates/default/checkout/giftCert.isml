@@ -23,7 +23,14 @@
         <div class="row align-items-start">
             <!--- item price --->
             <div class="col-4 line-item-unit-price">
-                
+                <p class="line-item-pricing-info">
+                    <span class="line-item-total-text unit-price-label">
+                        ${Resource.msg('label.each.item.price','cart',null)}
+                    </span><br/>
+                    <div class="item-total-${lineItem.UUID} price">
+                        <isprint value="${lineItem.grossPrice}" style="MONEY_LONG" />
+                    </div>
+                </p>
             </div>
 
             <!--- quantity --->

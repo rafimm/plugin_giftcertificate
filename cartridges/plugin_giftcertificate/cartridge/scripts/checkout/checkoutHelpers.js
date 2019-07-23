@@ -2,13 +2,17 @@
 
 var base = module.superModule;
 
+var collections = require('*/cartridge/scripts/util/collections');
+
 var Transaction = require('dw/system/Transaction');
 var OrderMgr = require('dw/order/OrderMgr');
 var Order = require('dw/order/Order');
 var Status = require('dw/system/Status');
 var Money = require('dw/value/Money');
+var BasketMgr = require('dw/order/BasketMgr');
 
 var giftCertHelper = require('*/cartridge/scripts/helpers/giftCertHelpers');
+var AddressModel = require('*/cartridge/models/address');
 
 /**
  * Attempts to place the order
@@ -271,9 +275,141 @@ function getRenderedGCInstruments(req, currentBasket, paymentForm) {
 	return renderTemplateHelper.getRenderedHtml(context, 'checkout/billing/paymentOptions');
 }
 
+/**
+ * Determines a unique shipment ID for shipments in the current cart and the given base ID. The function appends
+ * a counter to the base ID and checks the existence of the resulting ID. If the resulting ID is unique, this ID
+ * is returned; if not, the counter is incremented and checked again.
+ * @param {dw.order.Basket} currentBasket - The account model for the current customer
+ * @param {string} baseID - The base ID.
+ * @returns {string} Calculated shipment ID.
+ */
+var determineUniqueShipmentID = function (currentBasket, baseID) {
+	var counter = 1;
+	var shipment = null;
+	var candidateID = baseID + '' + counter;
+
+	while (shipment === null) {
+		shipment = currentBasket.getShipment(candidateID);
+		if (shipment) {
+			// This ID is already taken, increment the counter
+			// and try the next one.
+			counter++;
+			candidateID = baseID + '' + counter;
+			shipment = null;
+		} else {
+			return candidateID;
+		}
+	}
+
+	// Should never go here
+	return null;
+};
+
+/**
+ * Cleans the shipments of the current basket by putting all gift certificate line items to single, possibly
+ * new, shipments, with one shipment per gift certificate line item.
+ * @param {dw.order.Basket} currentBasket - The account model for the current customer
+ * @transactional
+ */
+var updateGiftCertificateShipments = function (currentBasket) {
+	var ArrayList = require('dw/util/ArrayList');
+	// List of line items.
+	var giftCertificatesLI = new ArrayList();
+
+	// Finds gift certificates in shipments that have
+	// product line items and gift certificate line items merged.
+	var shipments = currentBasket.getShipments();
+
+	for (var i = 0; i < shipments.length; i++) {
+		var shipment = shipments[i];
+
+		// Skips shipment if no gift certificates are contained.
+		if (shipment.giftCertificateLineItems.size() === 0) {
+			continue;
+		}
+
+		// Skips shipment if it has no products and just one gift certificate is contained.
+		if (shipment.productLineItems.size() === 0 && shipment.giftCertificateLineItems.size() === 1) {
+			continue;
+		}
+
+		// If there are gift certificates, add them to the list.
+		if (shipment.giftCertificateLineItems.size() > 0) {
+			giftCertificatesLI.addAll(shipment.giftCertificateLineItems);
+		}
+	}
+
+	// Create a shipment for each gift certificate line item.
+	for (var n = 0; n < giftCertificatesLI.length; n++) {
+		var newShipmentID = determineUniqueShipmentID(currentBasket, 'Shipment #');
+		giftCertificatesLI[n].setShipment(currentBasket.createShipment(newShipmentID));
+	}
+};
+
+/**
+ * Ensures that no shipment exists with 0 product line items
+ * @param {Object} req - the request object needed to access session.privacyCache
+ */
+function ensureNoEmptyShipments(req) {
+	Transaction.wrap(function () {
+		var currentBasket = BasketMgr.getCurrentBasket();
+
+		var iter = currentBasket.shipments.iterator();
+		var shipment;
+		var shipmentsToDelete = [];
+
+		while (iter.hasNext()) {
+			shipment = iter.next();
+			if (shipment.productLineItems.length < 1 && shipmentsToDelete.indexOf(shipment) < 0) {
+				if (shipment.default) {
+					// Cant delete the defaultShipment
+					// Copy all line items from 2nd to first
+					var altShipment = base.getFirstNonDefaultShipmentWithProductLineItems(currentBasket);
+					if (!altShipment) return;
+
+					// Move the valid marker with the shipment
+					var altValid = req.session.privacyCache.get(altShipment.UUID);
+					req.session.privacyCache.set(currentBasket.defaultShipment.UUID, altValid);
+
+					collections.forEach(altShipment.productLineItems,
+						function (lineItem) {
+							lineItem.setShipment(currentBasket.defaultShipment);
+						});
+
+					if (altShipment.shippingAddress) {
+						// Copy from other address
+						var addressModel = new AddressModel(altShipment.shippingAddress);
+						base.copyShippingAddressToShipment(addressModel, currentBasket.defaultShipment);
+					} else {
+						// Or clear it out
+						currentBasket.defaultShipment.createShippingAddress();
+					}
+
+					if (altShipment.custom && altShipment.custom.fromStoreId && altShipment.custom.shipmentType) {
+						currentBasket.defaultShipment.custom.fromStoreId = altShipment.custom.fromStoreId;
+						currentBasket.defaultShipment.custom.shipmentType = altShipment.custom.shipmentType;
+					}
+
+					currentBasket.defaultShipment.setShippingMethod(altShipment.shippingMethod);
+					// then delete 2nd one
+					shipmentsToDelete.push(altShipment);
+				} else if (shipment.giftCertificateLineItems.size() > 0) {
+					continue;
+				} else {
+					shipmentsToDelete.push(shipment);
+				}
+			}
+		}
+
+		for (var j = 0, jj = shipmentsToDelete.length; j < jj; j++) {
+			currentBasket.removeShipment(shipmentsToDelete[j]);
+		}
+	});
+}
+
 module.exports = {
 	getFirstNonDefaultShipmentWithProductLineItems: base.getFirstNonDefaultShipmentWithProductLineItems,
-	ensureNoEmptyShipments: base.ensureNoEmptyShipments,
+	ensureNoEmptyShipments: ensureNoEmptyShipments,
 	getProductLineItem: base.getProductLineItem,
 	isShippingAddressInitialized: base.isShippingAddressInitialized,
 	prepareShippingForm: base.prepareShippingForm,
@@ -299,5 +435,6 @@ module.exports = {
 	setGift: base.setGift,
 	removeGiftCertificatePaymentInstrument: removeGiftCertificatePaymentInstrument,
 	createGiftCertificatePaymentInstrument: createGiftCertificatePaymentInstrument,
-	getRenderedGCInstruments: getRenderedGCInstruments
+	getRenderedGCInstruments: getRenderedGCInstruments,
+	updateGiftCertificateShipments: updateGiftCertificateShipments
 };

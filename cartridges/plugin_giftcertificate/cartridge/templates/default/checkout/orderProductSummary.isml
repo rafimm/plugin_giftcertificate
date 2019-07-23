@@ -27,13 +27,13 @@
                     </isif>
                 </isloop>
 
-                <isif condition="${pdict.order.shipping.length > 1}">
+                <isif condition="${pdict.order.shipping.length > 1 && shippingModel.productLineItems.totalQuantity > 0}">
                     <isinclude template="checkout/shipping/shippingCard" />
                     </div>
                 </isif>
             </isloop>
 
-            <!---Logic to render gift certificate on confirmation PAGE--->
+            <!---Logic to render gift certificate on order summary PAGE--->
             <isinclude template="checkout/giftCert" />
         </div>
     </div>
