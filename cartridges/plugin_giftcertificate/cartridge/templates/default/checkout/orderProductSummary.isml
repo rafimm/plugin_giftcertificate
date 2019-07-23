@@ -33,7 +33,7 @@
                 </isif>
             </isloop>
 
-            <!---Logic to render gift certificate on cart--->
+            <!---Logic to render gift certificate on confirmation PAGE--->
             <isinclude template="checkout/giftCert" />
         </div>
     </div>
