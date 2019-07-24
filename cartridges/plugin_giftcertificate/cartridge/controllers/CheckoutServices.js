@@ -147,6 +147,4 @@ server.post('AddGiftCertificate', server.middleware.https, csrfProtection.valida
     return next();
 });
 
-
-
 module.exports = server.exports();

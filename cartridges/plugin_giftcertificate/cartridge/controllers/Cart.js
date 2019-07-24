@@ -13,14 +13,12 @@ server.append('MiniCart', function (req, res, next) {
 
     if (currentBasket) {
         quantityTotal = currentBasket.productQuantityTotal;
+        if (currentBasket.giftCertificateLineItems.size() > 0) {
+            quantityTotal += currentBasket.giftCertificateLineItems.size();
+        }
     } else {
         quantityTotal = 0;
     }
-
-    if (currentBasket.giftCertificateLineItems.size() > 0) {
-        quantityTotal += currentBasket.giftCertificateLineItems.size();
-    }
-
     res.setViewData({
         quantityTotal: quantityTotal
     })

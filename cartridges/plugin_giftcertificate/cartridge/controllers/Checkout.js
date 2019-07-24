@@ -13,8 +13,8 @@ var basketCalculationHelpers = require('*/cartridge/scripts/helpers/basketCalcul
 server.append('Begin', function (req, res, next) {
         var BasketMgr = require('dw/order/BasketMgr');
         var currentBasket = BasketMgr.getCurrentBasket();
-
         var currentStage = res.getViewData().currentStage;
+        var productLineItemExist = true;
 
         if (currentStage === 'shipping') {
             Transaction.wrap(function () {
@@ -23,13 +23,10 @@ server.append('Begin', function (req, res, next) {
             });
         }
         
-        var productLineItemExist = true;
         if (currentBasket.getProductLineItems().size() === 0) {
             currentStage = 'payment';
             productLineItemExist = false;
         }
-
-        
 
         res.setViewData({
             currentStage: currentStage,
@@ -59,4 +56,3 @@ server.prepend('Begin', function (req, res, next) {
 });
 
 module.exports = server.exports();
-

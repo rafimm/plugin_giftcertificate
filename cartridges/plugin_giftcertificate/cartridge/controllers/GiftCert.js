@@ -36,6 +36,7 @@ server.get('Purchase', csrfProtection.generateToken, function (req, res, next) {
 server.post('AddToBasket', csrfProtection.validateAjaxRequest, server.middleware.https, function (req, res, next) {
     var formErrors = require('*/cartridge/scripts/formErrors');
     var giftCertForm = giftCertHelper.processAddToBasket(server.forms.getForm('giftcert'));
+    var ProductLineItemsModel = require('*/cartridge/models/productLineItems');
 
     if (giftCertForm.valid) {
         var currentBasket = BasketMgr.getCurrentOrNewBasket();
@@ -55,9 +56,19 @@ server.post('AddToBasket', csrfProtection.validateAjaxRequest, server.middleware
             basketCalculationHelpers.calculateTotals(currentBasket);
         });
 
+        
+        var quantityTotal = ProductLineItemsModel.getTotalQuantity(currentBasket.productLineItems);
+
+        if (currentBasket.getGiftCertificateLineItems().size() > 0) {
+            quantityTotal += currentBasket.getGiftCertificateLineItems().size()
+        }
+
         res.json({
             success: true,
-            redirectUrl: URLUtils.https('Cart-Show').toString()
+            redirectUrl: URLUtils.https('Cart-Show').toString(),
+            quantityTotal: quantityTotal,
+            minicartCountOfItems: Resource.msgf('minicart.count', 'common', null, quantityTotal),
+            message: Resource.msg('giftcert.add.success', 'giftcert', null)
         });
     } else {
         res.json({
@@ -74,7 +85,6 @@ server.post('AddToBasket', csrfProtection.validateAjaxRequest, server.middleware
  */
 server.post('Update', server.middleware.https, function (req, res, next) {
     var formErrors = require('*/cartridge/scripts/formErrors');
-
     var giftCertForm = giftCertHelper.processAddToBasket(server.forms.getForm('giftcert'));
 
     if (giftCertForm.valid) {

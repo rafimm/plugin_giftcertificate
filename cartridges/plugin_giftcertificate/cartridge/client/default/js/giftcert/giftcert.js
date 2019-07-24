@@ -1,6 +1,33 @@
 var formValidation = require('base/components/formValidation');
 var createErrorNotification = require('base/components/errorNotification');
 
+
+/**
+ * Updates the Mini-Cart quantity value after the customer has pressed the "Add to Cart" button
+ * @param {string} response - ajax response from clicking the add to cart button
+ */
+function handlePostCartAdd(response) {
+	$('.minicart').trigger('count:update', response);
+	var messageType = response.error ? 'alert-danger' : 'alert-success';
+	// show add to cart toast
+
+	if ($('.add-to-cart-messages').length === 0) {
+		$('body').append(
+			'<div class="add-to-cart-messages"></div>'
+		);
+	}
+
+	$('.add-to-cart-messages').append(
+		'<div class="alert ' + messageType + ' add-to-basket-alert text-center" role="alert">'
+		+ response.message
+		+ '</div>'
+	);
+
+	setTimeout(function () {
+		$('.add-to-basket-alert').remove();
+	}, 5000);
+}
+
 /**
  * Used to initiate ajax call and update the form
  * @param {Object} form - gift certificate form
@@ -20,6 +47,11 @@ var updateGiftCertForm = function (form, isUpdate) {
 			if (!data.success) {
 				formValidation(form, data);
 			} else {
+				if (!isUpdate) {
+					handlePostCartAdd(data);
+					form.find('input,textarea').val('');
+					return false;
+				}
 				location.href = data.redirectUrl;
 			}
 		},

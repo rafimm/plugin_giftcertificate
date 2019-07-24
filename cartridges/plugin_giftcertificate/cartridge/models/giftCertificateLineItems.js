@@ -53,7 +53,6 @@ function createGcliObject(allLineItems, view) {
 	return { lineItems: lineItems, totalQuantity: totalQuantity, subTotal: subTotal };
 }
 
-
 /**
  * @constructor
  * @classdesc class that represents a collection of line items and total quantity of
@@ -76,5 +75,6 @@ function GiftCertificateLineItems(giftCertificateLineItems, view) {
 		this.subTotal = 0;
 	}
 }
+
 
 module.exports = GiftCertificateLineItems;
