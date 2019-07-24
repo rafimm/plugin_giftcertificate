@@ -34,7 +34,7 @@
             </isloop>
 
             <!---Logic to render gift certificate on order summary PAGE--->
-            <isinclude template="checkout/giftCert" />
+            <isinclude template="checkout/orderSummary/giftCert" />
         </div>
     </div>
 </div>
