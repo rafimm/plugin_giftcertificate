@@ -65,4 +65,14 @@
 		<field formid="lineItemId" type="string" mandatory="false" binding="lineitemid"/>
 			
 	</group>
+
+	<group formid="balance">
+		<field 
+			formid="giftCertID" 
+			label=""
+			mandatory="true"
+			missing-error="giftcert.balance.giftCertID.missing-error"
+			type="string"
+			binding="from" />
+	</group>
 </form>

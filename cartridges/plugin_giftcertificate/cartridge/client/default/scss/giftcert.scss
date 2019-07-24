@@ -6,8 +6,13 @@
 
     margin-bottom: 1em;
 
+    .gift-details {
+        .content-asset {
+            background-color: #efefef;
+        }
+    }
+
     .content-asset {
-        background-color: #efefef;
         padding: 10px;
 
         @include media-breakpoint-down(md) {
@@ -30,6 +35,12 @@
         .form-group.required .form-control-label:before {
             content: "*";
             color: $red;
+        }
+    }
+
+    .check-balance-section {
+        form {
+            padding: 10px;
         }
     }
 }

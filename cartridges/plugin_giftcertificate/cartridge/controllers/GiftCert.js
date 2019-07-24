@@ -192,4 +192,31 @@ server.get('Edit', server.middleware.https, function (req, res, next) {
     
 });
 
+/**
+ * Rednerd the gift certificate form to edit an existing added certificate
+ */
+server.get('CheckBalance', server.middleware.https, function (req, res, next) {
+    var formatMoney = require('dw/util/StringUtils').formatMoney;
+    var GiftCertificateMgr = require('dw/order/GiftCertificateMgr');
+    var giftCertCode = req.querystring.giftCertCode;
+
+    // fetch the gift certificate
+    var giftCertificate = GiftCertificateMgr.getGiftCertificateByCode(giftCertCode);
+
+    if (giftCertificate && giftCertificate.isEnabled()) {
+        res.json({
+            giftCertificate: {
+                ID: giftCertificate.getGiftCertificateCode(),
+                balance: Resource.msgf('billing.giftcertbalance','giftcert', null, formatMoney(giftCertificate.getBalance()))
+            }
+        });
+    } else {
+        res.json({
+            error: Resource.msg('billing.giftcertinvalid', 'giftcert', null)
+        });
+    }
+
+    return next();
+});
+
 module.exports = server.exports();
