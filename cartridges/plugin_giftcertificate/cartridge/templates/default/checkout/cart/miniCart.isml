@@ -50,6 +50,8 @@
             </isloop>
 
             <!---Logic to render gift certificate on cart--->
+            <isset name="giftCertificateItems" value="${pdict.giftCertificateItems}" scope="page" />
+            <isset name="showGiftPrice" value="${true}" scope="page" />
             <isinclude template="checkout/cart/minicart/giftCert" />
         </div>
     </div>

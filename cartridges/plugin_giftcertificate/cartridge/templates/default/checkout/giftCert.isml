@@ -28,7 +28,7 @@
                         ${Resource.msg('label.each.item.price','cart',null)}
                     </span><br/>
                     <div class="item-total-${lineItem.UUID} price">
-                        <isprint value="${lineItem.grossPrice}" style="MONEY_LONG" />
+                        <isprint value="${lineItem.price.grossPrice}" style="MONEY_LONG" />
                     </div>
                 </p>
             </div>
@@ -51,7 +51,7 @@
                     </span>
                 </p>
                 <div class="item-total-${lineItem.UUID} price">
-                    <isprint value="${lineItem.grossPrice}" style="MONEY_LONG" />
+                    <isprint value="${lineItem.price.grossPrice}" style="MONEY_LONG" />
                 </div>
             </div>
 

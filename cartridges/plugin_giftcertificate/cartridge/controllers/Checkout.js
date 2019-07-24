@@ -40,5 +40,19 @@ server.append('Begin', function (req, res, next) {
     }
 );
 
+server.prepend('Begin', function (req, res, next) {
+    var BasketMgr = require('dw/order/BasketMgr');
+    var currentBasket = BasketMgr.getCurrentBasket();
+    var currentStage = req.querystring.stage ? req.querystring.stage : 'shipping';
+    if (currentStage === 'shipping') {
+        Transaction.wrap(function () {
+            COHelpers.updateGiftCertificateShipments(currentBasket);
+            basketCalculationHelpers.calculateTotals(currentBasket);
+        });
+    }
+    
+    return next();
+});
+
 module.exports = server.exports();
 

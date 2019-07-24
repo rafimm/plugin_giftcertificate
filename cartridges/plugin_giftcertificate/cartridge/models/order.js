@@ -2,29 +2,7 @@
 var base = module.superModule;
 
 var GiftCertificateLineItemsModel = require('*/cartridge/models/giftCertificateLineItems');
-
-var getGcPIInfo = function (gcPIs) {
-	var formatMoney = require('dw/util/StringUtils').formatMoney;
-	var gc = {};
-	var gcObj = [];
-	var total = 0;
-	if (gcPIs.size() > 0) {
-		for (var i = 0; i < gcPIs.size(); i++) {
-			var gcPiObj = {};
-			var gcPI = gcPIs[i];
-			total += gcPI.paymentTransaction.amount;
-			gcPiObj.maskedGiftCertifiacte = gcPI.getMaskedGiftCertificateCode();
-			gcPiObj.amount = formatMoney(gcPI.paymentTransaction.amount);
-			gcPiObj.giftCertCode = gcPI.getGiftCertificateID();
-			gcObj.push(gcPiObj);
-		}
-
-		gc.gcPIs = gcObj;
-		gc.total = parseFloat(total, 2);
-	}
-
-	return gc;
-};
+var GiftCertificatePIModel = require('*/cartridge/models/giftCertificatePaymentInstrument');
 
 /**
  * Order class that represents the current order
@@ -45,13 +23,26 @@ function OrderModel(lineItemContainer, options) {
 		if (!empty(this.items)) {
 			this.items.totalQuantity += giftCertificateLineItemsModel.totalQuantity;
 		}
-		this.gcPIInfo = getGcPIInfo(lineItemContainer.giftCertificatePaymentInstruments);
+		this.gcPaymentInstrument = new GiftCertificatePIModel(lineItemContainer.giftCertificatePaymentInstruments);
 		this.totalGrossPrice = lineItemContainer.totalGrossPrice;
 		this.productLineItemSize = lineItemContainer.getProductLineItems().size();
+
+		var safeOptions = options || {};
+		var shipmentWithPLI = [];
+		// skipping shipment only with gift certificate
+		for (var i = 0; i < lineItemContainer.shipments.length; i++) {
+			if (lineItemContainer.shipments[i].productLineItems.length > 0) {
+				shipmentWithPLI.push(lineItemContainer.shipments[i]);
+			}
+		}
+		var usingMultiShipping = (safeOptions.usingMultiShipping
+			|| shipmentWithPLI.length > 1);
+		this.usingMultiShipping = usingMultiShipping;
 	} else {
 		this.giftCertificateItems = [];
-		this.gcPIInfo = [];
+		this.gcPaymentInstrument = [];
 		this.productLineItemSize = 0;
+		this.usingMultiShipping = null;
 	}
 }
 

@@ -1,6 +1,28 @@
 'use strict';
 
 var collections = require('*/cartridge/scripts/util/collections');
+var formatMoney = require('dw/util/StringUtils').formatMoney;
+
+/**
+ * Function filter out the required field from gift certificate line item
+ * @param {dw.order.GiftCertificateLineItem} lineItem - gift certificate line item
+ * @return {Object} gcLineItem - customized linr temI
+ */
+function filterGCLineitem(lineItem) {
+	var gcLineItem = {};
+	gcLineItem.UUID = lineItem.UUID;
+	gcLineItem.recipientName = lineItem.recipientName;
+	gcLineItem.recipientEmail = lineItem.recipientEmail;
+	gcLineItem.lineItemText = lineItem.lineItemText;
+	gcLineItem.senderName = lineItem.senderName;
+
+	gcLineItem.price = {
+		basePrice: formatMoney(lineItem.basePrice),
+		grossPrice: formatMoney(lineItem.grossPrice)
+	};
+
+	return gcLineItem;
+}
 
 /**
  * Creates an array of product line items
@@ -16,14 +38,13 @@ function createGcliObject(allLineItems, view) {
 	var subTotal = 0;
 
 	collections.forEach(allLineItems, function (item) {
-
 		totalQuantity += 1;
 		subTotal += item.basePrice;
 
 		var params = {
 			pview: 'giftCertificateLineItem',
 			containerView: view,
-			lineItem: item
+			lineItem: filterGCLineitem(item)
 		};
 
 		lineItems.push(params);

@@ -11,7 +11,6 @@
                         <label class="form-control-label" for="giftCert">${Resource.msg('billing.giftcertlabel','giftcert',null)}</label>
                         <div class="gift-cert-wrapper" data-missing-error="${Resource.msg('giftcert.missing.error','giftcert',null)}">
                             <input type="text" class="form-control giftCertCode" id="giftCert"
-                                value=""
                                 <isprint value=${giftCertFields.giftCertCode.attributes} encoding="off"/>
                                 aria-describedby="giftCertInvalidMessage"
                             >

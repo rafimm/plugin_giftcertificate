@@ -1,6 +1,6 @@
-<isif condition="${!empty(pdict.order.gcPIInfo)}">
-    <isset name="gcPIs" value="${pdict.order.gcPIInfo.gcPIs}" scope="page" />
-    <isset name="gcPITotal" value="${pdict.order.gcPIInfo.total}" scope="page" />
+<isif condition="${!empty(pdict.order.gcPaymentInstrument)}">
+    <isset name="gcPIs" value="${pdict.order.gcPaymentInstrument.gcPIs}" scope="page" />
+    <isset name="gcPITotal" value="${pdict.order.gcPaymentInstrument.total}" scope="page" />
 </isif>
 <div class="form-nav billing-nav payment-information"
      data-payment-method-id="${pdict.order.totalGrossPrice.value > gcPITotal ? 'CREDIT_CARD' : ''}"
