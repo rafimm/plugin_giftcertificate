@@ -34,7 +34,7 @@ function updateTotals(totals) {
 function updateOrderGiftSummaryInformation(order) {
 	var $productSummary = $('<div />');
 	order.giftCertificateItems.forEach(function (gc) {
-		var pli = $('[data-product-line-item=' + gc.lineItem.UUID + ']');
+		var pli = $('[data-gc-line-item=' + gc.lineItem.UUID + ']');
 		$productSummary.append(pli);
 	});
 

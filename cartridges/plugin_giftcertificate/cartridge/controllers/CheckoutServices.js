@@ -29,6 +29,7 @@ server.get('RemoveGiftCertificate', server.middleware.https, function (req, res,
             return true;
         });
 
+        paymentForm.clear();
         var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments(req, currentBasket, paymentForm);
 
         if (response) {
@@ -97,7 +98,6 @@ server.post('AddGiftCertificate', server.middleware.https, csrfProtection.valida
 
     var paymentForm = server.forms.getForm('billing');
     var giftCertCode = paymentForm.giftCertFields.giftCertCode;
-    var r = giftCertCode.value;
 
     if (empty(giftCertCode.value)) {
 		giftCertCode.valid = false;
@@ -127,6 +127,7 @@ server.post('AddGiftCertificate', server.middleware.https, csrfProtection.valida
                 return gcPaymentInstrument;
             });
 
+            paymentForm.clear();
             var renderedGiftCertHtml = COHelpers.getRenderedGCInstruments(req, currentBasket, paymentForm);
 
             res.json({
