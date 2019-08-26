@@ -2,9 +2,9 @@
 
 Using this cartride allow you following:
 
-  creating gift certificate in SFRA
-  checking gift certificate balance
-  using gift certificate as a payment method at checkout
+  Creating gift certificate in SFRA
+  Checking gift certificate balance
+  Using gift certificate as a payment method at checkout
 
 
 Content:
