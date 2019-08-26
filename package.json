@@ -10,6 +10,15 @@
     "compile:js": "sgmf-scripts --compile js",
     "compile:scss": "sgmf-scripts --compile css"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nimitshukla123/plugin_giftcertificate.git"
+  },
+  "author": "Nimit Shukla",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/nimitshukla123/plugin_giftcertificate/issues"
+  },
   "devDependencies": {
     "chai": "^3.5.0",
     "css-loader": "^0.28.11",
