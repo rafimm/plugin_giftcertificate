@@ -9,4 +9,4 @@ Using this cartride allow you following:
 
 Content:
 
-Import the content asset kept inside site-import folder in your site manullay 
+Import the content asset kept inside site-import folder in your site manually
