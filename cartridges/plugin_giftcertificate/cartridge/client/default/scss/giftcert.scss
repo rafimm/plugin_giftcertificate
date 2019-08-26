@@ -43,4 +43,11 @@
             padding: 10px;
         }
     }
+
+    #gift-balance-msg {
+        color: $green;
+        &.red {
+            color: $red;
+        }
+    }
 }

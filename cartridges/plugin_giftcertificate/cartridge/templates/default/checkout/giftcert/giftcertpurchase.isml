@@ -4,7 +4,6 @@
 
     <isscript>
         var assets = require('*/cartridge/scripts/assets.js');
-        assets.addJs('/js/giftcert.js');
         assets.addCss('/css/giftcert.css');
     </isscript>
 
@@ -37,6 +36,7 @@
                             aria-describedby="form-giftCertID-error"
                             <isprint value=${pdict.giftCertForm.balance.giftCertID.attributes} encoding="off" />>
                             <div class="invalid-feedback" id="form-giftCertID-error"></div>
+                            <div id="gift-balance-msg"></div>
                     </div> 
                     
                    

@@ -127,7 +127,7 @@ function updateGiftCert(currentBasket) {
 }
 
 /**
- * Internal helper function that creates/updates the gift certificate.
+ * Internal helper function that validates the gift certificate form.
  * Validates the giftcert.purchase form and handles any errors.
  * @param {Object} form - gift certificate form object
  * @return {Object} giftCertForm
@@ -155,6 +155,26 @@ var processAddToBasket = function (form) {
 	}
 
 	return giftCertForm;
+};
+
+/**
+ * Internal helper function that validates the check balance form.
+ * Validates the giftcert.purchase form and handles any errors.
+ * @param {Object} form - gift certificate form object
+ * @return {Object} giftCertForm
+ */
+var processCheckBalance = function (form) {
+	var checkBalanceForm = form;
+
+	// Validates confirmation of email address.
+	var giftCertIDForm = checkBalanceForm.balance.giftCertID;
+
+	if (!giftCertIDForm.valid && empty(giftCertIDForm.value)) {
+		giftCertIDForm.valid = false;
+		checkBalanceForm.valid = false;
+	}
+
+	return checkBalanceForm;
 };
 
 /**
@@ -203,5 +223,6 @@ module.exports = {
 	updateGiftCert: updateGiftCert,
 	processAddToBasket: processAddToBasket,
 	createGiftCertificateFromLineItem: createGiftCertificateFromLineItem,
-	sendGiftCertificateEmail: sendGiftCertificateEmail
+	sendGiftCertificateEmail: sendGiftCertificateEmail,
+	processCheckBalance: processCheckBalance
 };

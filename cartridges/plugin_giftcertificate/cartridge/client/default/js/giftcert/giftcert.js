@@ -73,6 +73,33 @@ var updateGiftCertForm = function (form, isUpdate) {
 	return false;
 };
 
+/**
+ * Used to initiate ajax call and check gift card balance
+ * @param {Object} form - check balance form
+ */
+var checkBalance = function (form) {
+	var url = form.attr('action');
+	form.spinner().start();
+	$.ajax({
+		url: url,
+		type: 'get',
+		dataType: 'json',
+		data: form.serialize(),
+		success: function (data) {
+			form.spinner().stop();
+			if (!data.success) {
+				formValidation(form, data);
+			} else {
+				$('#gift-balance-msg').html(data.giftCertificate.balance).removeClass('red');
+			}
+		},
+		error: function (err) {
+			form.spinner().stop();
+			$('#gift-balance-msg').html(err.responseJSON.error).addClass('red');
+		}
+	});
+};
+
 module.exports = {
 	addToBasket: function () {
 		$('form.giftcert').submit(function (e) {
@@ -86,6 +113,13 @@ module.exports = {
 			var form = $(this).parent('.giftcert');
 			e.preventDefault();
 			updateGiftCertForm(form, true);
+		});
+	},
+	checkGiftCertBalance: function () {
+		$('body').on('click', '#CheckBalanceButton', function (e) {
+			var form = $('.check-balance');
+			e.preventDefault();
+			checkBalance(form);
 		});
 	}
 };
