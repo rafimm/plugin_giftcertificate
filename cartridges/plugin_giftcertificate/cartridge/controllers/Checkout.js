@@ -41,7 +41,7 @@ server.prepend('Begin', function (req, res, next) {
     var BasketMgr = require('dw/order/BasketMgr');
     var currentBasket = BasketMgr.getCurrentBasket();
     if (!currentBasket) {
-        res.redirect(URLUtils.url('Cart-Show'));
+        res.redirect(dw.web.URLUtils.url('Cart-Show'));
         return next();
     }
     var currentStage = req.querystring.stage ? req.querystring.stage : 'shipping';
